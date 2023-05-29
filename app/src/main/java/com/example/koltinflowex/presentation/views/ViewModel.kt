@@ -34,7 +34,7 @@ class ViewModel @Inject constructor(private val baseRepo: BaseRepo) : ViewModel(
         }
     }
 
-    private fun getAllComment() {
+     fun getAllComment() {
         allCommentsFlow.value = State.loading()
         viewModelScope.launch {
             baseRepo.getAllComment().catch {

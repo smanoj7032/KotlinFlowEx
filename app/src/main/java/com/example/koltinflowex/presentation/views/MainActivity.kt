@@ -1,7 +1,8 @@
 package com.example.koltinflowex.presentation.views
 
-import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
@@ -10,9 +11,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
 import com.example.koltinflowex.R
 import com.example.koltinflowex.data.model.CommentModel
 import com.example.koltinflowex.data.model.MemeResponse
@@ -36,6 +34,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
     private lateinit var commentAdapter: RVAdapter<CommentModel, ItemCommentBinding>
     private lateinit var memeAdapter: RVAdapter<MemeResponse, ItemPhotosListBinding>
     private lateinit var photosAdapter: RVAdapter<PhotosResponse, ItemPhotosListBinding>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -49,7 +48,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         when (view?.id) {
             R.id.button -> {
                 if (binding.searchEditText.text.isNullOrEmpty()) {
-                    Toast.makeText(this, "Query Can't be empty", Toast.LENGTH_SHORT).show()
+                   viewModel.getAllComment()
                 } else {
                     viewModel.getNewComment(binding.searchEditText.text.toString().toInt())
                 }
@@ -105,44 +104,44 @@ class MainActivity : AppCompatActivity(), OnClickListener {
                 }
             }
         }
-       /* lifecycleScope.launch {
-            viewModel.allPhotos.collect {
-                when (it.status) {
-                    Status.LOADING -> {
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
+        /* lifecycleScope.launch {
+             viewModel.allPhotos.collect {
+                 when (it.status) {
+                     Status.LOADING -> {
+                         binding.progressBar.visibility = View.VISIBLE
+                     }
 
-                    Status.SUCCESS -> {
-                        binding.progressBar.visibility = View.GONE
-                        photosAdapter.list = it.data?.reversed()
-                        Log.e("AllComments-->", "setObserver: ${it.data}")
-                    }
+                     Status.SUCCESS -> {
+                         binding.progressBar.visibility = View.GONE
+                         photosAdapter.list = it.data?.reversed()
+                         Log.e("AllComments-->", "setObserver: ${it.data}")
+                     }
 
-                    else -> {
-                        Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        }
-        lifecycleScope.launch {
-            viewModel.allMeme.collect {
-                when (it.status) {
-                    Status.LOADING -> {
-                        binding.progressBar.visibility = View.VISIBLE
-                    }
+                     else -> {
+                         Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_SHORT).show()
+                     }
+                 }
+             }
+         }
+         lifecycleScope.launch {
+             viewModel.allMeme.collect {
+                 when (it.status) {
+                     Status.LOADING -> {
+                         binding.progressBar.visibility = View.VISIBLE
+                     }
 
-                    Status.SUCCESS -> {
-                        binding.progressBar.visibility = View.GONE
-                        memeAdapter.list = it.data
-                        Log.e("TAG==>", "setObserver: ${it.data}")
-                    }
+                     Status.SUCCESS -> {
+                         binding.progressBar.visibility = View.GONE
+                         memeAdapter.list = it.data
+                         Log.e("TAG==>", "setObserver: ${it.data}")
+                     }
 
-                    else -> {
-                        Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        }*/
+                     else -> {
+                         Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_SHORT).show()
+                     }
+                 }
+             }
+         }*/
     }
 
     private fun setAdapter() {
@@ -166,7 +165,8 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         binding.rvComments.layoutManager = LinearLayoutManager(this)
         binding.rvComments.adapter = commentAdapter
 
-       /* *//** PHOTOS ADAPTER *//*
+        /* */
+        /** PHOTOS ADAPTER *//*
 
         photosAdapter = object :
             RVAdapter<PhotosResponse, ItemPhotosListBinding>(R.layout.item_photos_list, 1) {
@@ -197,7 +197,8 @@ class MainActivity : AppCompatActivity(), OnClickListener {
         binding.rvComments.adapter = photosAdapter
 
 
-        *//** MEME ADAPTER *//*
+        */
+        /** MEME ADAPTER *//*
         memeAdapter =
             object : RVAdapter<MemeResponse, ItemPhotosListBinding>(R.layout.item_photos_list, 1) {
                 override fun onBind(
