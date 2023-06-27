@@ -1,15 +1,18 @@
-package com.example.koltinflowex.domain.network.api
+package com.example.koltinflowex.common.network.api
 
 import com.example.koltinflowex.data.model.CommentModel
 import com.example.koltinflowex.data.model.MemeResponse
+import com.example.koltinflowex.data.model.MoviesListResponse
 import com.example.koltinflowex.data.model.PhotosResponse
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface BaseApi {
     @GET("/comments/{id}")
-    suspend fun getComments(@Path("id") id: Int): CommentModel
+    suspend fun getComments(@Path("id") id: Int?): CommentModel
 
     @GET("comments")
     suspend fun getAllComments(): List<CommentModel>
@@ -22,4 +25,7 @@ interface BaseApi {
         @Header("X-RapidAPI-Host") token: String,
         @Header("X-RapidAPI-Key") apiKey: String,
     ): List<MemeResponse>
+
+    @GET("movie/popular")
+    suspend fun getPopularMoviesList(@Query("page") page: Int): MoviesListResponse
 }

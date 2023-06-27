@@ -1,7 +1,7 @@
-package com.example.koltinflowex.domain.injection
+package com.example.koltinflowex.common.injection
 
+import com.example.koltinflowex.data.dataImpl.BaseRepoImpl
 import com.example.koltinflowex.domain.repository.BaseRepo
-import com.example.koltinflowex.domain.repository.BaseRepoImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

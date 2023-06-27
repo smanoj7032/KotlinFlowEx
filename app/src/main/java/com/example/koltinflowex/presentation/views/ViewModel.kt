@@ -1,71 +1,53 @@
 package com.example.koltinflowex.presentation.views
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import com.example.koltinflowex.common.network.helper.State
+import com.example.koltinflowex.common.network.helper.Status
 import com.example.koltinflowex.data.model.CommentModel
 import com.example.koltinflowex.data.model.MemeResponse
+import com.example.koltinflowex.data.model.MoviesListResponse
 import com.example.koltinflowex.data.model.PhotosResponse
-import com.example.koltinflowex.domain.network.helper.State
-import com.example.koltinflowex.domain.network.helper.Status
+import com.example.koltinflowex.data.model.Result
 import com.example.koltinflowex.domain.repository.BaseRepo
+import com.example.koltinflowex.presentation.common.base.BaseViewModel
+import com.example.koltinflowex.presentation.common.emitter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ViewModel @Inject constructor(private val baseRepo: BaseRepo) : ViewModel() {
-    val searchCommentStateFlow = MutableStateFlow(State(Status.SUCCESS, CommentModel(), ""))
-    val allCommentsFlow = MutableStateFlow(State(Status.SUCCESS, listOf<CommentModel>(), ""))
-    val allPhotos = MutableStateFlow(State(Status.SUCCESS, listOf<PhotosResponse>(), ""))
-    val allMeme = MutableStateFlow(State(Status.SUCCESS, listOf<MemeResponse>(), ""))
+class ViewModel @Inject constructor(
+    private val baseRepo: BaseRepo
+) : BaseViewModel() {
+    val searchCommentStateFlow = MutableStateFlow(State(Status.LOADING, CommentModel(), "", false))
+    val allCommentsFlow = MutableStateFlow(State(Status.LOADING, listOf<CommentModel>(), "", false))
+    val allPhotos = MutableStateFlow(State(Status.LOADING, listOf<PhotosResponse>(), "", false))
+    val allMeme = MutableStateFlow(State(Status.LOADING, listOf<MemeResponse>(), "", false))
+    val moviesListResponse =
+        MutableStateFlow(State(Status.LOADING, MoviesListResponse(), "", false))
+    val movieList = MutableStateFlow<State<PagingData<Result>>>(State.loading())
+
 
     fun getNewComment(id: Int?) {
-        searchCommentStateFlow.value = State.loading()
-        viewModelScope.launch {
-            if (id != null) {
-                baseRepo.getComment(id).catch {
-                    searchCommentStateFlow.value = State.error(it.message)
-                }.collect {
-                    searchCommentStateFlow.value = State.success(it.data)
-                }
-            }
-        }
+        launchTask { baseRepo.getComment(id).emitter(searchCommentStateFlow, false) }
     }
 
-     fun getAllComment() {
-        allCommentsFlow.value = State.loading()
-        viewModelScope.launch {
-            baseRepo.getAllComment().catch {
-                allCommentsFlow.value = State.error(it.message)
-            }.collect {
-                allCommentsFlow.value = State.success(it.data)
-            }
-        }
+    fun getAllComment() {
+        launchTask { baseRepo.getAllComment().emitter(allCommentsFlow, false) }
     }
 
     private fun getAllPhotos() {
-        allPhotos.value = State.loading()
-        viewModelScope.launch {
-            baseRepo.getAllPhotos().catch { allPhotos.value = State.error(it.message) }.collect {
-                allPhotos.value = State.success(it.data)
-            }
+        launchTask { baseRepo.getAllPhotos().emitter(allPhotos, false) }
+    }
+
+    private fun getMeme() {
+        launchTask { baseRepo.getMeme().emitter(allMeme, false) }
+    }
+
+    fun getMoviesList() {
+        launchTask {
+            baseRepo.getMoviesList().emitter(movieList, false)
         }
     }
 
-     fun getMeme() {
-        allMeme.value = State.loading()
-        viewModelScope.launch {
-            baseRepo.getMeme().catch { allMeme.value = State.error(it.message) }.collect {
-                allMeme.value = State.success(it.data)
-            }
-        }
-    }
-
-    init {
-        getAllComment()
-        // getAllPhotos()
-       // getMeme()
-    }
 }

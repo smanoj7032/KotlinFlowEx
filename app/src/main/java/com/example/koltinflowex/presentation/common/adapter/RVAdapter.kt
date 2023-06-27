@@ -10,7 +10,7 @@ open class RVAdapter<M, B : ViewDataBinding>(
     private val layoutResId: Int,
     private val modelVarId: Int,
 
-) : RecyclerView.Adapter<RVAdapter.Holder<B>>() {
+    ) : RecyclerView.Adapter<RVAdapter.Holder<B>>() {
 
     private val dataList: MutableList<M> = ArrayList()
 
@@ -42,8 +42,7 @@ open class RVAdapter<M, B : ViewDataBinding>(
         get() = dataList
         set(newDataList) {
             dataList.clear()
-            if (newDataList != null)
-                dataList.addAll(newDataList)
+            if (newDataList != null) dataList.addAll(newDataList)
             notifyDataSetChanged()
         }
 
