@@ -7,17 +7,5 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 open class BaseViewModel : ViewModel() {
-    private val viewModelJob = Job()
-    private val viewModelScope = CoroutineScope(Dispatchers.Main + viewModelJob)
 
-    override fun onCleared() {
-        super.onCleared()
-        viewModelJob.cancel()
-    }
-
-    fun launchTask(block: suspend CoroutineScope.() -> Unit) {
-        viewModelScope.launch {
-            block()
-        }
-    }
 }

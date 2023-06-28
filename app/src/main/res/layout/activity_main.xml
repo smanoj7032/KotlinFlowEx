@@ -38,6 +38,8 @@
             android:layout_height="wrap_content"
             android:autofillHints="Search Comments By Id"
             android:inputType="numberSigned"
+            android:visibility="gone"
+            android:focusable="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

@@ -21,6 +21,7 @@ import javax.inject.Inject
 class ViewModel @Inject constructor(
     private val baseRepo: BaseRepo
 ) : BaseViewModel() {
+
     val searchCommentStateFlow = MutableStateFlow(State(Status.LOADING, CommentModel(), "", false))
     val allCommentsFlow = MutableStateFlow(State(Status.LOADING, listOf<CommentModel>(), "", false))
     val allPhotos = MutableStateFlow(State(Status.LOADING, listOf<PhotosResponse>(), "", false))

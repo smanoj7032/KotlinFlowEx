@@ -2,6 +2,7 @@ package com.example.koltinflowex.presentation.common
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.view.inputmethod.InputMethodManager
@@ -68,4 +69,11 @@ fun Context.loadImage(imageUrl: String?, imageView: ImageView, progressBar: Prog
             progressBar.visibility = ProgressBar.GONE // Hide the progress bar in case of error
         }
     }
+}
+
+fun <T> Activity.startNewActivity(s: Class<T>, killCurrent: Boolean = false) {
+    val intent = Intent(this, s)
+    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+    startActivity(intent)
+    if (killCurrent) finish()
 }

@@ -14,16 +14,25 @@
         android:layout_height="wrap_content"
         android:padding="10dp">
 
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_photo"
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="250dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/placeholder"
+            android:elevation="10dp"
+            android:shadowColor="@color/black"
+            app:cardCornerRadius="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_photo"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                android:src="@drawable/placeholder" />
+        </androidx.cardview.widget.CardView>
+
 
         <ProgressBar
             android:id="@+id/progressBar"

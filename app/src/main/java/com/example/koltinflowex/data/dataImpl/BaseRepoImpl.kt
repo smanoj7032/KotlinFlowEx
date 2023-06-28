@@ -8,6 +8,7 @@ import com.example.koltinflowex.common.network.api.BaseApi
 import com.example.koltinflowex.common.network.helper.State
 import com.example.koltinflowex.data.model.CommentModel
 import com.example.koltinflowex.data.model.MemeResponse
+import com.example.koltinflowex.data.model.MovieDetailsResponse
 import com.example.koltinflowex.data.model.MoviesListResponse
 import com.example.koltinflowex.data.model.PhotosResponse
 import com.example.koltinflowex.data.model.Result
@@ -47,6 +48,10 @@ class BaseRepoImpl @Inject constructor(private val baseApi: BaseApi) : BaseRepo 
         return executeApiCall {
             baseApi.getPopularMoviesList(page)
         }
+    }
+
+    override suspend fun getPopularMoviesDetails(id: Int?): Flow<State<MovieDetailsResponse>> {
+        return executeApiCall { baseApi.getMovieDetails(id) }
     }
 
     override suspend fun getMoviesList(scope:CoroutineScope): Flow<State<PagingData<Result>>> {

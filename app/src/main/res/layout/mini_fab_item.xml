@@ -5,6 +5,6 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="5dp"
     android:background="@drawable/shape"
-    android:backgroundTint="@color/Yellow"
+    android:backgroundTint="@color/black"
     android:src="@drawable/add"
-    app:tint="@color/black" />
+    app:tint="@color/white" />

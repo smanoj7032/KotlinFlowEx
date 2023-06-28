@@ -4,6 +4,7 @@ import androidx.paging.PagingData
 import com.example.koltinflowex.common.network.helper.State
 import com.example.koltinflowex.data.model.CommentModel
 import com.example.koltinflowex.data.model.MemeResponse
+import com.example.koltinflowex.data.model.MovieDetailsResponse
 import com.example.koltinflowex.data.model.MoviesListResponse
 import com.example.koltinflowex.data.model.PhotosResponse
 import com.example.koltinflowex.data.model.Result
@@ -16,5 +17,6 @@ interface BaseRepo {
     suspend fun getAllPhotos(): Flow<State<List<PhotosResponse>>>
     suspend fun getMeme(): Flow<State<List<MemeResponse>>>
     suspend fun getPopularMoviesList(page: Int): Flow<State<MoviesListResponse>>
+    suspend fun getPopularMoviesDetails(id: Int?): Flow<State<MovieDetailsResponse>>
     suspend fun getMoviesList(scope: CoroutineScope): Flow<State<PagingData<Result>>>
 }

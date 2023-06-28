@@ -30,9 +30,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/shape"
-        android:backgroundTint="@color/Yellow"
+        android:backgroundTint="@color/black"
         android:src="@drawable/add"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@color/black" />
+        app:tint="@color/white" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -44,6 +44,7 @@ abstract class BaseActivity<Binding : ViewDataBinding> : AppCompatActivity(),
         if (this.isNetworkAvailable()) {
             executeApiCall()
             executePagingApiCall()
+            isFirstTime = true
             isApiHit = true
             Log.e("ApiCall--->>", "onNetworkChanged: first")
 

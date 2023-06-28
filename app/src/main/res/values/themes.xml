@@ -3,7 +3,7 @@
     <style name="Base.Theme.KoltinFlowEx" parent="Theme.Material3.DayNight.NoActionBar">
 
         <!-- Customize your light theme here. -->
-         <item name="colorPrimary">#092EF8</item>
+         <item name="colorPrimary">#000000</item>
          <item name="colorSecondary">#FF1616</item>
     </style>
 
