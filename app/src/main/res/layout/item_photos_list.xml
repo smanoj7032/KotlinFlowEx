@@ -4,6 +4,9 @@
 
     <data>
 
+        <variable
+            name="movieList"
+            type="com.example.koltinflowex.data.model.MovieDetailsResponse" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -11,11 +14,13 @@
         android:layout_height="wrap_content"
         android:padding="10dp">
 
+
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/iv_photo"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="250dp"
             android:scaleType="centerCrop"
+            android:src="@drawable/placeholder"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

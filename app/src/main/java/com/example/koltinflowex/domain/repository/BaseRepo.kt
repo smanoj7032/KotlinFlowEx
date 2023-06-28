@@ -7,6 +7,7 @@ import com.example.koltinflowex.data.model.MemeResponse
 import com.example.koltinflowex.data.model.MoviesListResponse
 import com.example.koltinflowex.data.model.PhotosResponse
 import com.example.koltinflowex.data.model.Result
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 interface BaseRepo {
@@ -15,5 +16,5 @@ interface BaseRepo {
     suspend fun getAllPhotos(): Flow<State<List<PhotosResponse>>>
     suspend fun getMeme(): Flow<State<List<MemeResponse>>>
     suspend fun getPopularMoviesList(page: Int): Flow<State<MoviesListResponse>>
-    suspend fun getMoviesList(): Flow<State<PagingData<Result>>>
+    suspend fun getMoviesList(scope: CoroutineScope): Flow<State<PagingData<Result>>>
 }

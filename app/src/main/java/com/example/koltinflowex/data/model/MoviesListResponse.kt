@@ -3,14 +3,14 @@ package com.example.koltinflowex.data.model
 import com.google.gson.annotations.SerializedName
 
 data class MoviesListResponse(
-    @SerializedName("page") val page: Int? = null, // 1
+    @SerializedName("page") val page: Int? = null,
     @SerializedName("results") val results: List<Result>? = null,
-    @SerializedName("total_pages") val totalPages: Int? = null, // 34218
-    @SerializedName("total_results") val totalResults: Int? = null // 684341
+    @SerializedName("total_pages") val totalPages: Int? = null,
+    @SerializedName("total_results") val totalResults: Int? = null
 )
     data class Result(
-        @SerializedName("adult") val adult: Boolean? = null, // false
-        @SerializedName("backdrop_path") val backdropPath: String? = null, // /wcKFYIiVDvRURrzglV9kGu7fpfY.jpg
+        @SerializedName("adult") val adult: Boolean? = null,
+        @SerializedName("backdrop_path") val backdropPath: String? = null,
         @SerializedName("genre_ids") val genreIds: List<Int>? = null,
         @SerializedName("id") val id: Int? = null, // 453395
         @SerializedName("original_language") val originalLanguage: String? = null, // en

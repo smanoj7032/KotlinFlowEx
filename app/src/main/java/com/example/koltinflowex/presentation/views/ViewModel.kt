@@ -1,5 +1,6 @@
 package com.example.koltinflowex.presentation.views
 
+import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import com.example.koltinflowex.common.network.helper.State
 import com.example.koltinflowex.common.network.helper.Status
@@ -13,6 +14,7 @@ import com.example.koltinflowex.presentation.common.base.BaseViewModel
 import com.example.koltinflowex.presentation.common.emitter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,24 +31,29 @@ class ViewModel @Inject constructor(
 
 
     fun getNewComment(id: Int?) {
-        launchTask { baseRepo.getComment(id).emitter(searchCommentStateFlow, false) }
+        viewModelScope.launch { baseRepo.getComment(id).emitter(searchCommentStateFlow, false) }
     }
 
     fun getAllComment() {
-        launchTask { baseRepo.getAllComment().emitter(allCommentsFlow, false) }
+        viewModelScope.launch { baseRepo.getAllComment().emitter(allCommentsFlow, false) }
     }
 
     private fun getAllPhotos() {
-        launchTask { baseRepo.getAllPhotos().emitter(allPhotos, false) }
+        viewModelScope.launch { baseRepo.getAllPhotos().emitter(allPhotos, false) }
     }
 
     private fun getMeme() {
-        launchTask { baseRepo.getMeme().emitter(allMeme, false) }
+        viewModelScope.launch { baseRepo.getMeme().emitter(allMeme, false) }
     }
 
     fun getMoviesList() {
-        launchTask {
-            baseRepo.getMoviesList().emitter(movieList, false)
+        viewModelScope.launch {
+            baseRepo.getMoviesList(viewModelScope).emitter(movieList, false)
+        }
+    }
+    fun getMoviesList2() {
+        viewModelScope.launch {
+            baseRepo.getPopularMoviesList(1).emitter(moviesListResponse, false)
         }
     }
 

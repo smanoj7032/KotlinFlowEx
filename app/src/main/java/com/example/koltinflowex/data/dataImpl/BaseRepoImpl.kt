@@ -1,9 +1,9 @@
 package com.example.koltinflowex.data.dataImpl
 
-import com.example.koltinflowex.presentation.common.pagination.Pagination
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.example.koltinflowex.common.network.api.BaseApi
 import com.example.koltinflowex.common.network.helper.State
 import com.example.koltinflowex.data.model.CommentModel
@@ -13,6 +13,8 @@ import com.example.koltinflowex.data.model.PhotosResponse
 import com.example.koltinflowex.data.model.Result
 import com.example.koltinflowex.domain.repository.BaseRepo
 import com.example.koltinflowex.presentation.common.executeApiCall
+import com.example.koltinflowex.presentation.common.pagination.Pagination
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -47,11 +49,13 @@ class BaseRepoImpl @Inject constructor(private val baseApi: BaseApi) : BaseRepo 
         }
     }
 
-    override suspend fun getMoviesList(): Flow<State<PagingData<Result>>> {
+    override suspend fun getMoviesList(scope:CoroutineScope): Flow<State<PagingData<Result>>> {
         return Pager(
-            config = PagingConfig(pageSize = 20),
-            pagingSourceFactory = { Pagination(baseApi) }
-        ).flow.map { pagingData ->
+            config = PagingConfig(pageSize = 10),
+            pagingSourceFactory = {
+                Pagination(baseApi)
+            }
+        ).flow.cachedIn(scope).map { pagingData ->
             State.success(pagingData)
         }.catch { e ->
             emit(State.error(e.localizedMessage, true))

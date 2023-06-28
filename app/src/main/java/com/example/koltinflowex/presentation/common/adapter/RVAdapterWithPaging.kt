@@ -37,4 +37,5 @@ abstract class RVAdapterWithPaging<M : Any, B : ViewDataBinding>(
     }
 
     class Holder<S : ViewDataBinding>(val binding: S) : RecyclerView.ViewHolder(binding.root)
+
 }

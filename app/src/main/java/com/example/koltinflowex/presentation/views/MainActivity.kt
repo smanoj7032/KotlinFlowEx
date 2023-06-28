@@ -4,8 +4,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.map
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.koltinflowex.R
 import com.example.koltinflowex.common.network.api.POSTER_BASE_URL
@@ -16,6 +17,7 @@ import com.example.koltinflowex.data.model.Result
 import com.example.koltinflowex.databinding.ActivityMainBinding
 import com.example.koltinflowex.databinding.ItemCommentBinding
 import com.example.koltinflowex.databinding.ItemPhotosListBinding
+import com.example.koltinflowex.presentation.common.adapter.LoadMoreAdapter
 import com.example.koltinflowex.presentation.common.adapter.RVAdapter
 import com.example.koltinflowex.presentation.common.adapter.RVAdapterWithPaging
 import com.example.koltinflowex.presentation.common.base.BaseActivity
@@ -25,15 +27,13 @@ import com.example.koltinflowex.presentation.common.loadImage
 import com.example.koltinflowex.presentation.common.multifab.MiniFabAdapter
 import com.example.koltinflowex.presentation.common.multifab.MultiFabItem
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabItemClickListener {
     private val viewModel: ViewModel by viewModels()
-    val items = listOf(MultiFabItem(1, R.drawable.add), MultiFabItem(2, R.drawable.add))
+    private val items = listOf(MultiFabItem(1, R.drawable.add), MultiFabItem(2, R.drawable.add))
 
 
     private lateinit var commentAdapter: RVAdapter<CommentModel, ItemCommentBinding>
@@ -64,7 +64,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
 
 
     override fun executeApiCall() {
-        viewModel.getMoviesList()/* searchedText = binding.searchEditText.text.toString()
+       /* searchedText = binding.searchEditText.text.toString()
              if (searchedText == "") viewModel.getAllComment()
              else viewModel.getNewComment(searchedText.toInt())
              binding.searchEditText.addTextChangedListener(object : TextWatcher {
@@ -88,6 +88,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
              viewModel.getMoviesList(1)*/
     }
 
+    override fun executePagingApiCall() {
+        viewModel.getMoviesList()
+    }
+
     override fun onCreateView() {
         binding.multiFab.setMiniFabItems(items)
         binding.multiFab.setOnFabItemClickListener(this)
@@ -95,9 +99,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
         setObserver()
     }
 
-    private fun setObserver() = CoroutineScope(Dispatchers.IO).launch {
+    private fun setObserver() {
         viewModel.movieList.customCollector(
             this@MainActivity, onLoading = ::onLoading, onSuccess = {
+              //  binding.rvComments.removeAllViews()
+                Log.e("TAG-->>", "setObserver: ${it.map { it.id!! }}")
                 lifecycleScope.launch { movieAdapter.submitData(it) }
             }, onError = ::onError
         )/*  viewModel.allCommentsFlow.customCollector(
@@ -220,14 +226,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
             override fun onBind(binding: ItemPhotosListBinding, item: Result, position: Int) {
                 super.onBind(binding, item, position)
                 this@MainActivity.loadImage(
-                    POSTER_BASE_URL + item.posterPath,
-                    binding.ivPhoto,
-                    binding.progressBar
+                    POSTER_BASE_URL + item.posterPath, binding.ivPhoto, binding.progressBar
                 )
             }
         }
         binding.rvComments.layoutManager = LinearLayoutManager(this)
         binding.rvComments.adapter = movieAdapter
+        binding.rvComments.adapter =
+            movieAdapter.withLoadStateHeaderAndFooter(header = LoadMoreAdapter { movieAdapter.retry() },
+                footer = LoadMoreAdapter { movieAdapter.retry() })
     }
 
     override fun onFabItemClick(item: MultiFabItem) {
@@ -241,5 +248,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
             }
         }
     }
+
+    override fun onNetworkChanged(status: Boolean?) {
+        super.onNetworkChanged(status)
+        if (status==true){
+            movieAdapter.retry()
+        }
+    }
+
 
 }

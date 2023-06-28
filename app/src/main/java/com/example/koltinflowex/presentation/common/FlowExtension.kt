@@ -14,6 +14,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
@@ -44,7 +45,7 @@ fun <T> MutableStateFlow<State<T>>.customCollector(
     onError: ((throwable: Throwable, showError: Boolean) -> Unit)?,
 ) {
     lifecycleOwner.lifecycleScope.launch {
-        collect { state ->
+        collectLatest { state ->
             when (state.status) {
                 Status.LOADING -> {
                     onLoading.invoke(true)
