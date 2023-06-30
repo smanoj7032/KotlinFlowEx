@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
 
     <application
         android:name=".presentation.MyApplication"
@@ -17,7 +19,7 @@
         android:theme="@style/Theme.KoltinFlowEx"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.views.MainActivity"
+            android:name=".presentation.views.activity.movielistactivity.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,7 +29,7 @@
         </activity>
 
         <activity
-            android:name=".presentation.views.moviedetailactivity.MovieDetailActivity"
+            android:name=".presentation.views.activity.moviedetailactivity.MovieDetailActivity"
             android:exported="true" />
     </application>
 

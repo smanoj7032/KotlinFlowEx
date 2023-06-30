@@ -1,14 +1,15 @@
-package com.example.koltinflowex.presentation.views.moviedetailactivity
+package com.example.koltinflowex.presentation.views.activity.moviedetailactivity
 
 import androidx.activity.viewModels
 import com.example.koltinflowex.R
 import com.example.koltinflowex.common.network.api.POSTER_BASE_URL
-import com.example.koltinflowex.data.model.MovieDetailsResponse
+import com.example.koltinflowex.data.model.MovieDetail
 import com.example.koltinflowex.databinding.MovieDetailBinding
 import com.example.koltinflowex.presentation.common.base.BaseActivity
 import com.example.koltinflowex.presentation.common.base.BaseViewModel
 import com.example.koltinflowex.presentation.common.customCollector
 import com.example.koltinflowex.presentation.common.loadImage
+import com.example.koltinflowex.presentation.views.fragment.moviedetail.MovieDetailViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -37,7 +38,8 @@ class MovieDetailActivity : BaseActivity<MovieDetailBinding>() {
     }
 
     private fun setObserver() {
-        viewModel.movieDetail.customCollector(this,
+        viewModel.movieDetail.customCollector(
+            this,
             onLoading = ::onLoading,
             onError = ::onError,
             onSuccess = {
@@ -45,16 +47,19 @@ class MovieDetailActivity : BaseActivity<MovieDetailBinding>() {
             })
     }
 
-    private fun setData(movieDetailsResponse: MovieDetailsResponse) {
+    private fun setData(movieDetailsResponse: MovieDetail) {
         this.loadImage(
-            POSTER_BASE_URL + movieDetailsResponse.posterPath, binding.imgMovie, binding.imgProgress
+            POSTER_BASE_URL + movieDetailsResponse.poster_path,
+            binding.imgMovie,
+            binding.imgProgress
         )
         binding.apply {
+            tvAppBarTitle.text = movieDetailsResponse.title.toString()
             tvMovieTitle.text = movieDetailsResponse.title.toString()
-            tvMovieDateRelease.text = movieDetailsResponse.releaseDate
+            tvMovieDateRelease.text = movieDetailsResponse.release_date
             tvMovieOverview.text = movieDetailsResponse.overview
             tvMovieTagLine.text = movieDetailsResponse.tagline
-            tvMovieRating.text = movieDetailsResponse.voteAverage.toString()
+            tvMovieRating.text = movieDetailsResponse.vote_average.toString()
             tvMovieRuntime.text = movieDetailsResponse.runtime.toString()
             tvMovieBudget.text = movieDetailsResponse.budget.toString()
             tvMovieRevenue.text = movieDetailsResponse.revenue.toString()

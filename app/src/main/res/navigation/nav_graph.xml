@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/movie_list_fragment">
+
+    <fragment
+        android:id="@+id/tv_serial_fragment"
+        android:name="com.example.koltinflowex.presentation.views.fragment.demo.TvSerialFragment"
+        android:label="@string/demo"
+        tools:layout="@layout/tv_serial_fragment" />
+    <fragment
+        android:id="@+id/movie_list_fragment"
+        android:name="com.example.koltinflowex.presentation.views.fragment.movielist.MovieListFragment"
+        android:label="MovieDetail"
+        tools:layout="@layout/movie_list_fragment">
+        <action
+            android:id="@+id/movieListToMovieDetail"
+            app:destination="@+id/movieDetailFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out"
+            app:popUpTo="@id/movie_list_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/top_rated_fragment"
+        android:name="com.example.koltinflowex.presentation.views.fragment.demo.TopRatedFragment"
+        android:label="DEMO 2"
+        tools:layout="@layout/top_rated_fragment">
+        <action
+            android:id="@+id/topRatedToMovieDetail"
+            app:destination="@+id/movieDetailFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out"
+            app:popUpTo="@id/top_rated_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/setting_fragment"
+        android:name="com.example.koltinflowex.presentation.views.fragment.demo.SettingFragment"
+        android:label="DEMO 3"
+        tools:layout="@layout/setting_fragment" />
+    <fragment
+        android:id="@+id/movieDetailFragment"
+        android:name="com.example.koltinflowex.presentation.views.fragment.moviedetail.MovieDetailFragment"
+        android:label="Movie Detail"
+        tools:layout="@layout/movie_detail_fragment" />
+
+</navigation>

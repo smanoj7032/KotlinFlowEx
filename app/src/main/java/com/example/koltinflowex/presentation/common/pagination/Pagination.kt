@@ -5,12 +5,25 @@ import androidx.paging.PagingState
 import com.example.koltinflowex.common.network.api.BaseApi
 import com.example.koltinflowex.data.model.Result
 
-class Pagination(private val movieApiService: BaseApi) : PagingSource<Int, Result>() {
+class Pagination(private val movieApiService: BaseApi, private val type: String) :
+    PagingSource<Int, Result>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Result> {
         return try {
             val page = params.key ?: 1
-            val response = movieApiService.getPopularMoviesList(page)
-            val movies = response.results ?: emptyList()
+            val response = when (type) {
+                "top_rated" -> {
+                    movieApiService.getTopRatedMoviesList(page)
+                }
+
+                "upcoming" -> {
+                    movieApiService.getTvSerialMoviesList(page)
+                }
+
+                else -> {
+                    movieApiService.getPopularMoviesList(page)
+                }
+            }
+            val movies = response.results?.shuffled() ?: emptyList()
             LoadResult.Page(
                 data = movies,
                 prevKey = if (page > 1) page - 1 else null,

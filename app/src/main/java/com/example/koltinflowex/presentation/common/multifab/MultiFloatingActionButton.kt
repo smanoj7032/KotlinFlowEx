@@ -30,7 +30,7 @@ class MultiFloatingActionButton @JvmOverloads constructor(
         miniFabRecyclerView = findViewById(R.id.miniFabRecyclerView)
         mainFab = findViewById(R.id.mainFab)
 
-        mainFab.setOnClickListener(DoubleClickListener {
+        mainFab.setOnClickListener(DoubleClickListener(context) {
             toggleMiniFabItemsVisibility()
         })
 

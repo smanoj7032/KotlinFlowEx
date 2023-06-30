@@ -13,7 +13,7 @@ class ErrorView(context: Context, attributeSet: AttributeSet?) :
 
     init {
         var bindingImpl = ErrorViewBinding.inflate(LayoutInflater.from(context), this, false)
-        bindingImpl.imageViewRefresh.setOnClickListener(DoubleClickListener {
+        bindingImpl.imageViewRefresh.setOnClickListener(DoubleClickListener(context) {
             onRetry?.invoke()
         })
     }

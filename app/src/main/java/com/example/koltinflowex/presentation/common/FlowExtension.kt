@@ -14,7 +14,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.launchIn
@@ -27,9 +26,18 @@ fun <T> Flow<State<T>>.emitter(
     showErrorView: Boolean,
 ): Job {
     return onEach { state ->
-        mutableStateFlow.value = State.loading()
-        if (state.status == Status.SUCCESS) {
-            mutableStateFlow.value = state
+        when (state.status) {
+            Status.SUCCESS -> {
+                mutableStateFlow.value = state
+            }
+
+            Status.ERROR -> {
+                mutableStateFlow.value = state
+            }
+
+            else -> {
+                mutableStateFlow.value = state
+            }
         }
     }.catch { throwable ->
         val networkError = parseException(throwable)
@@ -45,7 +53,7 @@ fun <T> MutableStateFlow<State<T>>.customCollector(
     onError: ((throwable: Throwable, showError: Boolean) -> Unit)?,
 ) {
     lifecycleOwner.lifecycleScope.launch {
-        collectLatest { state ->
+        collect { state ->
             when (state.status) {
                 Status.LOADING -> {
                     onLoading.invoke(true)

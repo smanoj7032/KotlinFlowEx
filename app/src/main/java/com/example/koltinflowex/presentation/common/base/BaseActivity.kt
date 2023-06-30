@@ -5,10 +5,15 @@ import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.NavigationUI
 import com.example.koltinflowex.R
 import com.example.koltinflowex.common.network.ErrorCodes
 import com.example.koltinflowex.common.network.NetworkError
@@ -20,6 +25,7 @@ import com.example.koltinflowex.presentation.common.hideKeyBoard
 import com.example.koltinflowex.presentation.common.isNetworkAvailable
 import com.example.koltinflowex.presentation.common.showToast
 import com.example.koltinflowex.presentation.common.utils.AlertManager
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 abstract class BaseActivity<Binding : ViewDataBinding> : AppCompatActivity(),
     NetworkChangeCallback {
@@ -28,8 +34,10 @@ abstract class BaseActivity<Binding : ViewDataBinding> : AppCompatActivity(),
     val app: MyApplication
         get() = application as MyApplication
     private var networkChangeReceiver: NetworkChangeReceiver? = null
+    lateinit var navController: NavController
     private var isApiHit = false
     private var isFirstTime = false
+    private var isBNVHide = false
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,5 +120,62 @@ abstract class BaseActivity<Binding : ViewDataBinding> : AppCompatActivity(),
         if (status == false) onError(Throwable("Check internet connection"), false)
 
         isFirstTime = true
+    }
+
+    fun setUpBottomBar() = try {
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.fcv_main) as NavHostFragment
+        navController = navHostFragment.navController
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bnv_view)
+        NavigationUI.setupWithNavController(
+            bottomNav, navController
+        )
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.setting_fragment -> showBottomNav()
+                R.id.top_rated_fragment -> showBottomNav()
+                R.id.movie_list_fragment -> showBottomNav()
+                R.id.tv_serial_fragment -> showBottomNav()
+                else -> hideBottomNav()
+            }
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+
+    private fun showBottomNav() {
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bnv_view)
+        if (isBNVHide){
+            val animation = AnimationUtils.loadAnimation(bottomNav.context, R.anim.slide_up)
+            animation.setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationStart(p0: Animation?) {}
+
+                override fun onAnimationEnd(p0: Animation?) {
+                    bottomNav.visibility = View.VISIBLE
+                    isBNVHide = false
+                }
+
+                override fun onAnimationRepeat(p0: Animation?) {}
+
+            })
+            bottomNav.startAnimation(animation)
+        }
+    }
+
+    private fun hideBottomNav() {
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bnv_view)
+        val animation = AnimationUtils.loadAnimation(bottomNav.context, R.anim.slide_down)
+        animation.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(p0: Animation?) {}
+
+            override fun onAnimationEnd(p0: Animation?) {
+                bottomNav.visibility = View.GONE
+                isBNVHide = true
+            }
+
+            override fun onAnimationRepeat(p0: Animation?) {}
+
+        })
+        bottomNav.startAnimation(animation)
     }
 }

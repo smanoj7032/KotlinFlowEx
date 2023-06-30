@@ -5,8 +5,8 @@
     <data>
 
         <variable
-            name="movieList"
-            type="com.example.koltinflowex.data.model.MovieDetailsResponse" />
+            name="result"
+            type="com.example.koltinflowex.data.model.Result" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -15,9 +15,14 @@
         android:padding="10dp">
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/cvImage"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="0dp"
+            android:hapticFeedbackEnabled="true"
+            android:clickable="true"
             android:elevation="10dp"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
             android:shadowColor="@color/black"
             app:cardCornerRadius="5dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -43,18 +48,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <!--   <androidx.appcompat.widget.AppCompatTextView
-               android:id="@+id/tv_id"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:text="1"
-               android:textSize="14sp"
-               android:textStyle="bold"
-               app:layout_constraintBottom_toBottomOf="@+id/iv_photo"
-               app:layout_constraintEnd_toStartOf="@+id/iv_photo"
-               app:layout_constraintStart_toStartOf="parent"
-               app:layout_constraintTop_toTopOf="@+id/iv_photo" />-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

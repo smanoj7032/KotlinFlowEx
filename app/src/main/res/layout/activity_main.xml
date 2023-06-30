@@ -7,8 +7,46 @@
         android:id="@+id/cl_lay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
+        android:background="#CDCDCD"
         tools:context=".presentation.MainActivity">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cvAppbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#CDCDCD"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <RelativeLayout
+                android:id="@+id/rel_lay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#CDCDCD"
+                android:padding="15dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/optionsIV"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    app:tint="#8C8C8C" />
+
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/popular_movies"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
 
 
         <ProgressBar
@@ -37,24 +75,27 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:autofillHints="Search Comments By Id"
+            android:focusable="false"
             android:inputType="numberSigned"
             android:visibility="gone"
-            android:focusable="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvComments"
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fcv_main"
+            android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:defaultNavHost="true"
+            app:layout_constraintBottom_toTopOf="@+id/bnv_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/search_edit_text"
-            tools:listitem="@layout/item_photos_list" />
+            app:layout_constraintTop_toBottomOf="@+id/cvAppbar"
+            app:navGraph="@navigation/nav_graph"
+            tools:layout="@layout/movie_list_fragment" />
 
 
         <com.example.koltinflowex.presentation.common.multifab.MultiFloatingActionButton
@@ -62,8 +103,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/bnv_view"
             app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bnv_view"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            app:itemIconTint="@color/Yellow"
+            app:itemTextColor="@color/black"
+            app:labelVisibilityMode="selected"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:menu="@menu/menu" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,54 +1,34 @@
-package com.example.koltinflowex.presentation.views
+package com.example.koltinflowex.presentation.views.fragment.movielist
 
-import android.content.Intent
-import android.graphics.drawable.Drawable
-import android.util.Log
+import android.os.Bundle
 import android.view.View
-import android.widget.Toast
-import androidx.activity.viewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.koltinflowex.R
 import com.example.koltinflowex.common.network.api.POSTER_BASE_URL
 import com.example.koltinflowex.data.model.CommentModel
 import com.example.koltinflowex.data.model.MemeResponse
 import com.example.koltinflowex.data.model.PhotosResponse
 import com.example.koltinflowex.data.model.Result
-import com.example.koltinflowex.databinding.ActivityMainBinding
 import com.example.koltinflowex.databinding.ItemCommentBinding
 import com.example.koltinflowex.databinding.ItemPhotosListBinding
+import com.example.koltinflowex.databinding.MovieListFragmentBinding
 import com.example.koltinflowex.presentation.common.adapter.LoadMoreAdapter
 import com.example.koltinflowex.presentation.common.adapter.RVAdapter
 import com.example.koltinflowex.presentation.common.adapter.RVAdapterWithPaging
-import com.example.koltinflowex.presentation.common.base.BaseActivity
-import com.example.koltinflowex.presentation.common.base.BaseViewModel
+import com.example.koltinflowex.presentation.common.base.BaseFragment
 import com.example.koltinflowex.presentation.common.base.DoubleClickListener
 import com.example.koltinflowex.presentation.common.customCollector
 import com.example.koltinflowex.presentation.common.loadImage
-import com.example.koltinflowex.presentation.common.multifab.MiniFabAdapter
-import com.example.koltinflowex.presentation.common.multifab.MultiFabItem
-import com.example.koltinflowex.presentation.views.moviedetailactivity.MovieDetailActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-
 @AndroidEntryPoint
-class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabItemClickListener {
+class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
     private val viewModel: ViewModel by viewModels()
-    private val items = listOf(MultiFabItem(1, R.drawable.add), MultiFabItem(2, R.drawable.add))
-
-    var searchedText = ""
-    private lateinit var commentAdapter: RVAdapter<CommentModel, ItemCommentBinding>
-    private lateinit var memeAdapter: RVAdapter<MemeResponse, ItemPhotosListBinding>
-    private lateinit var photosAdapter: RVAdapter<PhotosResponse, ItemPhotosListBinding>
-    private lateinit var moviesListAdapter: RVAdapter<Result, ItemPhotosListBinding>
-
-    private lateinit var movieAdapter: RVAdapterWithPaging<Result, ItemPhotosListBinding>
-
+    private lateinit var movieListAdapter: RVAdapterWithPaging<Result, ItemPhotosListBinding>
     private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Result>() {
         override fun areItemsTheSame(oldItem: Result, newItem: Result): Boolean {
             return oldItem.id == newItem.id
@@ -59,17 +39,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
         }
     }
 
+    var searchedText = ""
+    private lateinit var commentAdapter: RVAdapter<CommentModel, ItemCommentBinding>
+    private lateinit var memeAdapter: RVAdapter<MemeResponse, ItemPhotosListBinding>
+    private lateinit var photosAdapter: RVAdapter<PhotosResponse, ItemPhotosListBinding>
+    private lateinit var moviesListAdapter: RVAdapter<Result, ItemPhotosListBinding>
 
-    override fun getLayoutResource(): Int {
-        return R.layout.activity_main
+
+    override fun onCreateView(view: View, saveInstanceState: Bundle?) {
+        setAdapter()
+        setObserver()
     }
 
-    override fun getViewModel(): BaseViewModel {
-        return viewModel
+    override fun executePagingApiCall() {
+        viewModel.getMoviesList()
     }
 
-
-    override fun executeApiCall() {/*  searchedText = binding.searchEditText.text.toString()
+    override fun executeApiCall() {   /*  searchedText = binding.searchEditText.text.toString()
           if (searchedText == "") viewModel.getAllComment()
           else viewModel.getNewComment(searchedText.toInt())
           binding.searchEditText.addTextChangedListener(object : TextWatcher {
@@ -93,53 +79,36 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
           viewModel.getMoviesList2()*/
     }
 
-    override fun executePagingApiCall() {
-        viewModel.getMoviesList()
-    }
-
-    override fun onCreateView() {
-        binding.multiFab.setMiniFabItems(items)
-        binding.multiFab.setOnFabItemClickListener(this)
-        setAdapter()
-        setObserver()
-    }
-
-    private fun setObserver() {
-        viewModel.movieList.customCollector(
-            this@MainActivity, onLoading = ::onLoading, onSuccess = {
-                binding.rvComments.removeAllViews()
-                lifecycleScope.launch { movieAdapter.submitData(it) }
-            }, onError = ::onError
-        )
-        viewModel.allCommentsFlow.customCollector(
-            this@MainActivity,
-            onLoading = ::onLoading,
-            onSuccess = { commentAdapter.list = it },
-            onError = ::onError
-        )
-        viewModel.searchCommentStateFlow.customCollector(
-            this@MainActivity, onLoading = ::onLoading, onSuccess = {
-                it.let { comment ->
-                    Log.e("Comment-->", "setObserver: $comment")
-                    commentAdapter.clearList()
-                    commentAdapter.addData(comment)
-                    commentAdapter.notifyDataSetChanged()
-                }
-            }, onError = ::onError
-        )
-        viewModel.allPhotos.customCollector(
-            this@MainActivity,
-            ::onLoading,
-            onSuccess = { photosAdapter.list = it.reversed() },
-            ::onError
-        )
-        viewModel.allMeme.customCollector(
-            this@MainActivity, ::onLoading, onSuccess = { memeAdapter.list = it }, ::onError
-        )
+    override fun getLayoutResource(): Int {
+        return R.layout.movie_list_fragment
     }
 
     private fun setAdapter() {
-        /** COMMENT ADAPTER */
+        movieListAdapter = object : RVAdapterWithPaging<Result, ItemPhotosListBinding>(
+            DIFF_CALLBACK, R.layout.item_photos_list, 1
+        ) {
+            override fun onBind(binding: ItemPhotosListBinding, item: Result, position: Int) {
+                super.onBind(binding, item, position)
+                parentActivity?.loadImage(
+                    POSTER_BASE_URL + item.poster_path, binding.ivPhoto, binding.progressBar
+                )
+
+                binding.cvImage.setOnClickListener(DoubleClickListener(parentActivity?.applicationContext) {
+                    val bundle = Bundle()
+                    bundle.putInt("movieId", item.id!!)
+                    binding.cvImage.navigateWithId(R.id.movieListToMovieDetail, bundle)
+                })
+            }
+
+        }
+        binding.rvComments.layoutManager = GridLayoutManager(parentActivity?.applicationContext, 2)
+        binding.rvComments.adapter = movieListAdapter
+        binding.rvComments.adapter =
+            movieListAdapter.withLoadStateHeaderAndFooter(header = LoadMoreAdapter { movieListAdapter.retry() },
+                footer = LoadMoreAdapter { movieListAdapter.retry() })
+
+
+ /*       *//** COMMENT ADAPTER *//*
         commentAdapter =
             object : RVAdapter<CommentModel, ItemCommentBinding>(R.layout.item_comment, 1) {
                 override fun onBind(
@@ -150,14 +119,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
                     binding.tvPostData.text = bean.id.toString()
                     binding.clLayComments.setOnClickListener {
                         Toast.makeText(
-                            this@MainActivity, bean.id.toString(), Toast.LENGTH_SHORT
+                            parentActivity?.applicationContext,
+                            bean.id.toString(),
+                            Toast.LENGTH_SHORT
                         ).show()
                     }
                 }
             }
-        binding.rvComments.layoutManager = LinearLayoutManager(this)
+        binding.rvComments.layoutManager = LinearLayoutManager(parentActivity?.applicationContext)
         binding.rvComments.adapter = commentAdapter
-        /** PHOTOS ADAPTER */
+        *//** PHOTOS ADAPTER *//*
         photosAdapter = object :
             RVAdapter<PhotosResponse, ItemPhotosListBinding>(R.layout.item_photos_list, 1) {
             override fun onBind(
@@ -165,7 +136,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
             ) {
                 super.onBind(binding, bean, position)
                 // binding.tvId.text = bean.id.toString()
-                Glide.with(this@MainActivity).load(bean.url)
+                Glide.with(this@MovieListFragment).load(bean.url)
                     .into(object : CustomTarget<Drawable>() {
                         override fun onResourceReady(
                             resource: Drawable, transition: Transition<in Drawable>?
@@ -183,10 +154,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
                     })
             }
         }
-        binding.rvComments.layoutManager = LinearLayoutManager(this)
+        binding.rvComments.layoutManager = LinearLayoutManager(parentActivity?.applicationContext)
         binding.rvComments.adapter = photosAdapter
 
-        /** MEME ADAPTER */
+        *//** MEME ADAPTER *//*
         memeAdapter =
             object : RVAdapter<MemeResponse, ItemPhotosListBinding>(R.layout.item_photos_list, 1) {
                 override fun onBind(
@@ -194,7 +165,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
                 ) {
                     super.onBind(binding, bean, position)
                     // binding.tvId.text = bean.id.toString()
-                    Glide.with(this@MainActivity).load(bean.image)
+                    Glide.with(this@MovieListFragment).load(bean.image)
                         .into(object : CustomTarget<Drawable>() {
                             override fun onResourceReady(
                                 resource: Drawable, transition: Transition<in Drawable>?
@@ -212,9 +183,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
                         })
                 }
             }
-        binding.rvComments.layoutManager = LinearLayoutManager(this)
+        binding.rvComments.layoutManager = LinearLayoutManager(parentActivity?.applicationContext)
         binding.rvComments.adapter = memeAdapter
-        /** MOVIESlIST WITHOUT PAGINATION*/
+        *//** MOVIESlIST WITHOUT PAGINATION*//*
         moviesListAdapter = object : RVAdapter<Result, ItemPhotosListBinding>(
             R.layout.item_photos_list, 1
         ) {
@@ -222,52 +193,51 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), MiniFabAdapter.OnFabIt
                 binding: ItemPhotosListBinding, bean: Result, position: Int
             ) {
                 super.onBind(binding, bean, position)
-                this@MainActivity.loadImage(
+                parentActivity?.applicationContext?.loadImage(
                     POSTER_BASE_URL + bean.posterPath, binding.ivPhoto, binding.progressBar
                 )
             }
-        }
+        }*/
 
-
-        /** MOVIESlIST WITH PAGINATION*/
-        movieAdapter = object : RVAdapterWithPaging<Result, ItemPhotosListBinding>(
-            DIFF_CALLBACK, R.layout.item_photos_list, 1
-        ) {
-            override fun onBind(binding: ItemPhotosListBinding, item: Result, position: Int) {
-                super.onBind(binding, item, position)
-                binding.ivPhoto.setOnClickListener(DoubleClickListener {
-                    val intent = Intent(this@MainActivity, MovieDetailActivity::class.java)
-                    intent.putExtra("movieId", item.id)
-                    startActivity(intent)
-                })
-                this@MainActivity.loadImage(
-                    POSTER_BASE_URL + item.posterPath, binding.ivPhoto, binding.progressBar
-                )
-            }
-        }
-        binding.rvComments.layoutManager = LinearLayoutManager(this)
-        binding.rvComments.adapter = movieAdapter
-        binding.rvComments.adapter =
-            movieAdapter.withLoadStateHeaderAndFooter(header = LoadMoreAdapter { movieAdapter.retry() },
-                footer = LoadMoreAdapter { movieAdapter.retry() })
     }
 
-    override fun onFabItemClick(item: MultiFabItem) {
-        when (item.id) {
-            1 -> {
-                Toast.makeText(this, "1st item clicked", Toast.LENGTH_SHORT).show()
-            }
+    private fun setObserver() {
+        viewModel.popularMovies.customCollector(
+            this, onLoading = ::onLoading, onSuccess = {
+                binding.rvComments.removeAllViews()
+                lifecycleScope.launch { movieListAdapter.submitData(it) }
+            }, onError = ::onError
+        )
 
-            2 -> {
-                Toast.makeText(this, "2nd item clicked", Toast.LENGTH_SHORT).show()
-            }
-        }
+     /*   viewModel.allCommentsFlow.customCollector(
+            this,
+            onLoading = ::onLoading,
+            onSuccess = { commentAdapter.list = it },
+            onError = ::onError
+        )
+        viewModel.searchCommentStateFlow.customCollector(
+            this, onLoading = ::onLoading, onSuccess = {
+                it.let { comment ->
+                    Log.e("Comment-->", "setObserver: $comment")
+                    commentAdapter.clearList()
+                    commentAdapter.addData(comment)
+                    commentAdapter.notifyDataSetChanged()
+                }
+            }, onError = ::onError
+        )
+        viewModel.allPhotos.customCollector(
+            this, ::onLoading, onSuccess = { photosAdapter.list = it.reversed() }, ::onError
+        )
+        viewModel.allMeme.customCollector(
+            this, ::onLoading, onSuccess = { memeAdapter.list = it }, ::onError
+        )*/
+
     }
 
     override fun onNetworkChanged(status: Boolean?) {
         super.onNetworkChanged(status)
         if (status == true) {
-            movieAdapter.retry()
+            movieListAdapter.retry()
         }
     }
 }

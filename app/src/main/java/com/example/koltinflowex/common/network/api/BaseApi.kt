@@ -2,7 +2,7 @@ package com.example.koltinflowex.common.network.api
 
 import com.example.koltinflowex.data.model.CommentModel
 import com.example.koltinflowex.data.model.MemeResponse
-import com.example.koltinflowex.data.model.MovieDetailsResponse
+import com.example.koltinflowex.data.model.MovieDetail
 import com.example.koltinflowex.data.model.MoviesListResponse
 import com.example.koltinflowex.data.model.PhotosResponse
 import retrofit2.http.GET
@@ -28,7 +28,12 @@ interface BaseApi {
 
     @GET("movie/popular")
     suspend fun getPopularMoviesList(@Query("page") page: Int): MoviesListResponse
+    @GET("movie/top_rated")
+    suspend fun getTopRatedMoviesList(@Query("page") page: Int): MoviesListResponse
+
+    @GET("movie/upcoming")
+    suspend fun getTvSerialMoviesList(@Query("page") page: Int): MoviesListResponse
 
     @GET("movie/{movie_id}")
-    suspend fun getMovieDetails(@Path("movie_id") id: Int?): MovieDetailsResponse
+    suspend fun getMovieDetails(@Path("movie_id") id: Int?): MovieDetail
 }

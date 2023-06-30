@@ -1,4 +1,4 @@
-package com.example.koltinflowex.presentation.views
+package com.example.koltinflowex.presentation.views.fragment.movielist
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -28,7 +28,9 @@ class ViewModel @Inject constructor(
     val allMeme = MutableStateFlow(State(Status.LOADING, listOf<MemeResponse>(), "", false))
     val moviesListResponse =
         MutableStateFlow(State(Status.LOADING, MoviesListResponse(), "", false))
-    val movieList = MutableStateFlow<State<PagingData<Result>>>(State.loading())
+    val popularMovies = MutableStateFlow<State<PagingData<Result>>>(State.loading())
+    val upComingMovies = MutableStateFlow<State<PagingData<Result>>>(State.loading())
+    val topRatedMovies = MutableStateFlow<State<PagingData<Result>>>(State.loading())
 
 
     fun getNewComment(id: Int?) {
@@ -49,13 +51,15 @@ class ViewModel @Inject constructor(
 
     fun getMoviesList() {
         viewModelScope.launch {
-            baseRepo.getMoviesList(viewModelScope).emitter(movieList, false)
+            baseRepo.getMoviesList(viewModelScope).emitter(popularMovies, false)
         }
-    }
-    fun getMoviesList2() {
+    } fun getTopRatedMoviesList() {
         viewModelScope.launch {
-            baseRepo.getPopularMoviesList(1).emitter(moviesListResponse, false)
+            baseRepo.getTopRatedMoviesList(viewModelScope).emitter(topRatedMovies, false)
+        }
+    } fun getUpcomingMoviesList() {
+        viewModelScope.launch {
+            baseRepo.getUpcomingMoviesList(viewModelScope).emitter(upComingMovies, false)
         }
     }
-
 }
