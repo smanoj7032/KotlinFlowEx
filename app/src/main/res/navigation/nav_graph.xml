@@ -9,7 +9,16 @@
         android:id="@+id/tv_serial_fragment"
         android:name="com.example.koltinflowex.presentation.views.fragment.demo.TvSerialFragment"
         android:label="@string/demo"
-        tools:layout="@layout/tv_serial_fragment" />
+        tools:layout="@layout/tv_serial_fragment">
+        <action
+            android:id="@+id/tvSerialToMovieDetail"
+            app:destination="@+id/movieDetailFragment"
+            app:enterAnim="@anim/slide_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/slide_out"
+            app:popUpTo="@id/tv_serial_fragment" />
+    </fragment>
     <fragment
         android:id="@+id/movie_list_fragment"
         android:name="com.example.koltinflowex.presentation.views.fragment.movielist.MovieListFragment"

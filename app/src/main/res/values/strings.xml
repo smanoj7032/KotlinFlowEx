@@ -7,4 +7,5 @@
     <string name="demo">DEMO</string>
     <string name="top_rated">Top Rated</string>
     <string name="upcoming">Upcoming</string>
+    <string name="search_movies">search movies</string>
 </resources>

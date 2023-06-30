@@ -14,3 +14,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "KoltinFlowEx"
 include ':app'
+include ':shimmer'

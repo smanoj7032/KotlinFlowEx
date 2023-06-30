@@ -72,6 +72,7 @@ abstract class BaseActivity<Binding : ViewDataBinding> : AppCompatActivity(),
     }
 
     override fun onDestroy() {
+        deleteCacheData()
         super.onDestroy()
         unregisterReceiver(networkChangeReceiver)
     }
@@ -177,5 +178,15 @@ abstract class BaseActivity<Binding : ViewDataBinding> : AppCompatActivity(),
 
         })
         bottomNav.startAnimation(animation)
+    }
+
+    open fun deleteCacheData() {
+        val cacheDir = this.cacheDir
+        val files = cacheDir.listFiles()
+        if (files != null) {
+            for (file in files) {
+                file.delete()
+            }
+        }
     }
 }

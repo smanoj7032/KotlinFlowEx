@@ -60,8 +60,8 @@ fun <T> MutableStateFlow<State<T>>.customCollector(
                 }
 
                 Status.SUCCESS -> {
-                    onLoading.invoke(false)
                     onSuccess?.invoke(state.data!!)
+                    onLoading.invoke(false)
                 }
 
                 Status.ERROR -> {

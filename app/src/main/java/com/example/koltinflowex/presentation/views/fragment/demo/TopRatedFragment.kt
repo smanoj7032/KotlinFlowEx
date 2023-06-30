@@ -18,13 +18,13 @@ import com.example.koltinflowex.presentation.common.base.BaseFragment
 import com.example.koltinflowex.presentation.common.base.DoubleClickListener
 import com.example.koltinflowex.presentation.common.customCollector
 import com.example.koltinflowex.presentation.common.loadImage
-import com.example.koltinflowex.presentation.views.fragment.movielist.ViewModel
+import com.example.koltinflowex.presentation.views.fragment.movielist.MoviesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
-    private val viewModel: ViewModel by viewModels()
+    private val moviesViewModel: MoviesViewModel by viewModels()
     private lateinit var topRatedMoviesAdapter: RVAdapterWithPaging<Result, ItemPhotosListBinding>
 
     private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Result>() {
@@ -43,7 +43,7 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
     }
 
     override fun executePagingApiCall() {
-        viewModel.getTopRatedMoviesList()
+        moviesViewModel.getTopRatedMoviesList()
     }
 
     override fun executeApiCall() {}
@@ -59,7 +59,7 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
             override fun onBind(binding: ItemPhotosListBinding, item: Result, position: Int) {
                 super.onBind(binding, item, position)
                 parentActivity?.loadImage(
-                    POSTER_BASE_URL + item.poster_path, binding.ivPhoto, binding.progressBar
+                    POSTER_BASE_URL + item.poster_path, binding.ivPhoto
                 )
                 binding.cvImage.setOnClickListener(DoubleClickListener(parentActivity?.applicationContext) {
                     val bundle = Bundle()
@@ -79,7 +79,7 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
     }
 
     private fun setObserver() {
-        viewModel.topRatedMovies.customCollector(this,
+        moviesViewModel.topRatedMovies.customCollector(this,
             onLoading = ::onLoading,
             onError = ::onError,
             onSuccess = {

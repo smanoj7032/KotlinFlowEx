@@ -110,4 +110,5 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
         isFirstTime = true
     }
 
+
 }

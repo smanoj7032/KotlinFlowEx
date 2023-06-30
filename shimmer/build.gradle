@@ -1,0 +1,22 @@
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+apply plugin: 'com.android.library'
+
+android {
+  compileSdkVersion 33
+
+  defaultConfig {
+    minSdkVersion 26
+  }
+}
+
+dependencies {
+implementation 'androidx.annotation:annotation-jvm:1.6.0'
+}
+
