@@ -7,6 +7,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.EditText
+import androidx.annotation.IdRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
@@ -20,7 +24,7 @@ import com.example.koltinflowex.presentation.common.isNetworkAvailable
 
 abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChangeCallback {
     lateinit var baseContext: Context
-    lateinit var binding: Binding
+    lateinit var mainbinding: Binding
     open val onRetry: (() -> Unit)? = null
     private var networkChangeReceiver: NetworkChangeReceiver? = null
 
@@ -43,8 +47,7 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
         super.onAttach(context)
         networkChangeReceiver = NetworkChangeReceiver(this)
         parentActivity?.registerReceiver(
-            networkChangeReceiver,
-            IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+            networkChangeReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         )
         if (parentActivity?.isNetworkAvailable() == true) {
             executePagingApiCall()
@@ -55,8 +58,8 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         val layout: Int = getLayoutResource()
-        binding = DataBindingUtil.inflate(layoutInflater, layout, container, false)
-        return binding.root
+        mainbinding = DataBindingUtil.inflate(layoutInflater, layout, container, false)
+        return mainbinding.root
     }
 
     override fun onPause() {
@@ -86,7 +89,7 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
         parentActivity?.onError(error, showErrorView)
     }
 
-    fun View.navigateWithId(id: Int, bundle: Bundle? = null) = try {
+    fun View.navigateWithId(id: Int, @IdRes currentDestinationId: Int?, bundle: Bundle? = null) = try {
         activity?.hideKeyBoard()
         this.findNavController().navigate(id, bundle)
     } catch (e: Exception) {
@@ -109,6 +112,4 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
         }
         isFirstTime = true
     }
-
-
 }

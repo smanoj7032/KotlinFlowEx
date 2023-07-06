@@ -6,10 +6,8 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.koltinflowex.common.network.api.BaseApi
 import com.example.koltinflowex.common.network.helper.State
-import com.example.koltinflowex.data.model.CommentModel
-import com.example.koltinflowex.data.model.MemeResponse
 import com.example.koltinflowex.data.model.MovieDetail
-import com.example.koltinflowex.data.model.PhotosResponse
+import com.example.koltinflowex.data.model.MoviesListResponse
 import com.example.koltinflowex.data.model.Result
 import com.example.koltinflowex.domain.repository.BaseRepo
 import com.example.koltinflowex.presentation.common.executeApiCall
@@ -32,14 +30,8 @@ class BaseRepoImpl @Inject constructor(private val baseApi: BaseApi) : BaseRepo 
             .onStart { emit(State.loading()) }
     }
 
-    override suspend fun getTopRatedMoviesList(scope: CoroutineScope): Flow<State<PagingData<Result>>> {
-        return Pager(PagingConfig(10, enablePlaceholders = true), pagingSourceFactory = {
-            Pagination(
-                baseApi, "top_rated"
-            )
-        }).flow.cachedIn(scope).map { State.success(it) }.catch {
-            emit(State.error(it.message, true))
-        }.onStart { emit(State.loading()) }
+    override suspend fun getTopRatedMoviesList(scope: CoroutineScope): Flow<State<MoviesListResponse>> {
+        return executeApiCall { baseApi.getTopRatedMoviesList(1) }
     }
 
     override suspend fun getSearchMovie(
@@ -47,11 +39,16 @@ class BaseRepoImpl @Inject constructor(private val baseApi: BaseApi) : BaseRepo 
     ): Flow<State<PagingData<Result>>> {
         return Pager(
             PagingConfig(10, enablePlaceholders = true),
-            pagingSourceFactory = { Pagination(baseApi, "search", search) }).flow.cachedIn(
-            scope
-        ).map { State.success(it) }.catch {
-            emit(State.error(it.message, true))
-        }.onStart { emit(State.loading()) }
+            pagingSourceFactory = {
+                Pagination(
+                    baseApi,
+                    "search",
+                    search
+                )
+            }).flow.cachedIn(scope)
+            .map { State.success(it) }.catch {
+                emit(State.error(it.message, true))
+            }.onStart { emit(State.loading()) }
     }
 
     override suspend fun getPopularMoviesDetails(id: Int?): Flow<State<MovieDetail>> {
@@ -60,13 +57,16 @@ class BaseRepoImpl @Inject constructor(private val baseApi: BaseApi) : BaseRepo 
 
     override suspend fun getPopularMovies(scope: CoroutineScope): Flow<State<PagingData<Result>>> {
         return Pager(
-            config = PagingConfig(pageSize = 10, enablePlaceholders = true),
+            config = PagingConfig(pageSize = 10, enablePlaceholders = false),
             pagingSourceFactory = {
                 Pagination(baseApi, "popular")
             }).flow.cachedIn(scope).map { pagingData ->
-            State.success(pagingData)
+            if (Pagination(baseApi, "popular").errorMessage != null)
+                State.error(Pagination(baseApi, "popular").errorMessage, true)
+            else State.success(pagingData)
+
         }.catch { e ->
-            emit(State.error(e.localizedMessage, true))
+            emit(State.error(e.message, true))
         }.onStart {
             emit(State.loading())
         }

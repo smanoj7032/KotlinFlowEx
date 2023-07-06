@@ -5,6 +5,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
@@ -19,7 +20,6 @@ import com.example.koltinflowex.presentation.common.adapter.LoadMoreAdapter
 import com.example.koltinflowex.presentation.common.adapter.RVAdapter
 import com.example.koltinflowex.presentation.common.adapter.RVAdapterWithPaging
 import com.example.koltinflowex.presentation.common.base.BaseFragment
-import com.example.koltinflowex.presentation.common.base.DoubleClickListener
 import com.example.koltinflowex.presentation.common.customCollector
 import com.example.koltinflowex.presentation.common.loadImage
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
     private val moviesViewModel: MoviesViewModel by viewModels()
     private lateinit var movieListAdapter: RVAdapterWithPaging<Result, ItemPhotosListBinding>
-    var popularMovies: PagingData<Result>? = null
+    private var popularMovies: PagingData<Result>? = null
     private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Result>() {
         override fun areItemsTheSame(oldItem: Result, newItem: Result): Boolean {
             return oldItem.id == newItem.id
@@ -48,16 +48,8 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
         setAdapter()
         setObserver()
-
-        binding.etSearch.setOnEditorActionListener { p0, p1, p2 ->
-            if (searchedText != "" && p1 == EditorInfo.IME_ACTION_DONE) {
-                moviesViewModel.getSearchMovie(searchedText)
-                return@setOnEditorActionListener true
-            } else {
-                return@setOnEditorActionListener false
-            }
-        }
-        binding.etSearch.addTextChangedListener(object : TextWatcher {
+        val searchBar = parentActivity?.findViewById<EditText>(R.id.search_edit_text)
+        searchBar?.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -66,11 +58,19 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
 
             override fun afterTextChanged(p0: Editable?) {
                 if (searchedText == "") {
+                    popularMovies = null
                     moviesViewModel.getPopularMovies()
                 }
             }
         })
-
+        searchBar?.setOnEditorActionListener { p0, p1, p2 ->
+            if (searchedText != "" && p1 == EditorInfo.IME_ACTION_DONE) {
+                moviesViewModel.getSearchMovie(searchedText,"popularMovies")
+                return@setOnEditorActionListener true
+            } else {
+                return@setOnEditorActionListener false
+            }
+        }
     }
 
     override fun executePagingApiCall() {
@@ -94,17 +94,17 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
                     POSTER_BASE_URL + item.poster_path, binding.ivPhoto
                 )
 
-                binding.cvImage.setOnClickListener(DoubleClickListener(parentActivity?.applicationContext) {
+                binding.cvImage.setOnClickListener {
                     val bundle = Bundle()
                     bundle.putInt("movieId", item.id!!)
-                    binding.cvImage.navigateWithId(R.id.movieListToMovieDetail, bundle)
-                })
+                    binding.cvImage.navigateWithId(R.id.movieListToMovieDetail,parentActivity?.navController?.currentDestination?.id, bundle)
+                }
             }
 
         }
-        binding.rvComments.layoutManager = GridLayoutManager(parentActivity?.applicationContext, 2)
-        binding.rvComments.adapter = movieListAdapter
-        binding.rvComments.adapter =
+        mainbinding.rvComments.layoutManager = GridLayoutManager(parentActivity?.applicationContext, 2)
+        mainbinding.rvComments.adapter = movieListAdapter
+        mainbinding.rvComments.adapter =
             movieListAdapter.withLoadStateHeaderAndFooter(header = LoadMoreAdapter { movieListAdapter.retry() },
                 footer = LoadMoreAdapter { movieListAdapter.retry() })
 
@@ -127,7 +127,6 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
     private fun setObserver() {
         moviesViewModel.popularMovies.customCollector(
             this, onLoading = ::onLoading, onSuccess = {
-                popularMovies = null
                 popularMovies = it
                 lifecycleScope.launch {
                     movieListAdapter.submitData(popularMovies!!)

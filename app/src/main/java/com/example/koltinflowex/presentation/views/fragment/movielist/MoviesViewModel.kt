@@ -4,10 +4,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import com.example.koltinflowex.common.network.helper.State
 import com.example.koltinflowex.common.network.helper.Status
-import com.example.koltinflowex.data.model.CommentModel
-import com.example.koltinflowex.data.model.MemeResponse
 import com.example.koltinflowex.data.model.MoviesListResponse
-import com.example.koltinflowex.data.model.PhotosResponse
 import com.example.koltinflowex.data.model.Result
 import com.example.koltinflowex.domain.repository.BaseRepo
 import com.example.koltinflowex.presentation.common.base.BaseViewModel
@@ -26,7 +23,7 @@ class MoviesViewModel @Inject constructor(
         MutableStateFlow(State(Status.LOADING, MoviesListResponse(), "", false))
     val popularMovies = MutableStateFlow<State<PagingData<Result>>>(State.loading())
     val upComingMovies = MutableStateFlow<State<PagingData<Result>>>(State.loading())
-    val topRatedMovies = MutableStateFlow<State<PagingData<Result>>>(State.loading())
+    val topRatedMovies = MutableStateFlow<State<MoviesListResponse>>(State.loading())
 
 
     fun getPopularMovies() {
@@ -47,9 +44,22 @@ class MoviesViewModel @Inject constructor(
         }
     }
 
-    fun getSearchMovie(search: String) {
+    fun getSearchMovie(search: String, type: String) {
         viewModelScope.launch {
-            baseRepo.getSearchMovie(viewModelScope, search).emitter(popularMovies, false)
+            when (type) {
+                "popularMovies" -> {
+                    baseRepo.getSearchMovie(viewModelScope, search).emitter(popularMovies, false)
+                }
+
+               /* "topRated" -> {
+                    baseRepo.getSearchMovie(viewModelScope, search).emitter(topRatedMovies, false)
+                }*/
+
+                "upComing" -> {
+                    baseRepo.getSearchMovie(viewModelScope, search).emitter(upComingMovies, false)
+                }
+            }
+
         }
     }
 }

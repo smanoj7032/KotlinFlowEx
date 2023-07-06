@@ -1,5 +1,6 @@
 package com.example.koltinflowex.presentation.common.pagination
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.koltinflowex.common.network.api.BaseApi
@@ -10,6 +11,7 @@ class Pagination(
     private val type: String,
     private val search: String? = null,
 ) : PagingSource<Int, Result>() {
+    var errorMessage: String? = ""
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Result> {
         return try {
             val page = params.key ?: 1
@@ -30,12 +32,21 @@ class Pagination(
                     movieApiService.searchMovie("en-US", search, page, true)
                 }
             }
-            val movies = response.results ?: emptyList()
-            LoadResult.Page(
-                data = movies,
-                prevKey = if (page > 1) page - 1 else null,
-                nextKey = if (movies.isNotEmpty()) page + 1 else null
-            )
+            if (response.isSuccessful) {
+                errorMessage = null
+                val movies = response.body()?.results ?: emptyList()
+                LoadResult.Page(
+                    data = movies,
+                    prevKey = if (page > 1) page - 1 else null,
+                    nextKey = if (movies.isNotEmpty()) page + 1 else null
+                )
+            } else {
+                val errorBody = response.errorBody()
+                val errorMessage = errorBody?.string() ?: response.message()
+                Log.e("ERROR-->>", "load: ${errorMessage}", )
+                LoadResult.Error(Throwable(errorMessage))
+            }
+
         } catch (e: Exception) {
             LoadResult.Error(e)
         }

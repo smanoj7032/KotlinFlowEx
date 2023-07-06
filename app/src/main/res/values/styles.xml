@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">#858484</item>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your theme here -->
+        <item name="colorPrimary">@color/Yellow</item>
+        <item name="colorPrimaryDark">#9E7705</item>
         <item name="colorSecondary">#FF1616</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowActionBarOverlay">true</item>
     </style>
 </resources>

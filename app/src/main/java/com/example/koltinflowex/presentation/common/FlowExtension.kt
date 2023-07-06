@@ -1,5 +1,6 @@
 package com.example.koltinflowex.presentation.common
 
+import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.PagingData
@@ -8,6 +9,7 @@ import com.example.koltinflowex.common.network.NetworkError
 import com.example.koltinflowex.common.network.helper.State
 import com.example.koltinflowex.common.network.helper.Status
 import com.example.koltinflowex.data.model.Result
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import retrofit2.Response
 
 fun <T> Flow<State<T>>.emitter(
     mutableStateFlow: MutableStateFlow<State<T>>,
@@ -73,16 +76,22 @@ fun <T> MutableStateFlow<State<T>>.customCollector(
     }
 }
 
-suspend fun <T> executeApiCall(apiCall: suspend () -> T): Flow<State<T & Any>> {
+suspend fun <T> executeApiCall(apiCall: suspend () -> Response<T>): Flow<State<T & Any>> {
     return flow {
         try {
-            val result = apiCall.invoke()
-            emit(State.success(result))
+            val response = apiCall.invoke()
+            Log.e("Response-->>", "executeApiCall: ${Gson().toJson(response.message())}")
+            if (response.isSuccessful) {
+                emit(State.success(response.body()))
+            } else {
+                emit(State.error(response.message(), true))
+            }
         } catch (e: Exception) {
             emit(State.error(e.message, true))
         }
     }.flowOn(Dispatchers.IO)
 }
+
 
 suspend fun executePagingApiCall(apiCall: suspend () -> PagingData<Result>): Flow<State<PagingData<Result>>> {
     return flow {

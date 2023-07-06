@@ -19,6 +19,7 @@
             app:popExitAnim="@anim/slide_out"
             app:popUpTo="@id/tv_serial_fragment" />
     </fragment>
+
     <fragment
         android:id="@+id/movie_list_fragment"
         android:name="com.example.koltinflowex.presentation.views.fragment.movielist.MovieListFragment"
@@ -33,6 +34,7 @@
             app:popExitAnim="@anim/slide_out"
             app:popUpTo="@id/movie_list_fragment" />
     </fragment>
+
     <fragment
         android:id="@+id/top_rated_fragment"
         android:name="com.example.koltinflowex.presentation.views.fragment.demo.TopRatedFragment"
@@ -47,11 +49,13 @@
             app:popExitAnim="@anim/slide_out"
             app:popUpTo="@id/top_rated_fragment" />
     </fragment>
+
     <fragment
         android:id="@+id/setting_fragment"
         android:name="com.example.koltinflowex.presentation.views.fragment.demo.SettingFragment"
         android:label="DEMO 3"
         tools:layout="@layout/setting_fragment" />
+
     <fragment
         android:id="@+id/movieDetailFragment"
         android:name="com.example.koltinflowex.presentation.views.fragment.moviedetail.MovieDetailFragment"

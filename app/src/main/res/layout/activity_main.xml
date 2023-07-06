@@ -10,43 +10,57 @@
         android:background="#CDCDCD"
         tools:context=".presentation.MainActivity">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cvAppbar"
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#CDCDCD"
+            android:background="@color/Yellow"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="@style/AppTheme"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <RelativeLayout
-                android:id="@+id/rel_lay"
-                android:layout_width="match_parent"
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/img_btn_back"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#CDCDCD"
+                android:layout_gravity="start"
+                android:background="@color/Yellow"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
                 android:padding="15dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:src="@drawable/ic_back"
+                android:visibility="gone" />
 
-                <ImageView
-                    android:id="@+id/optionsIV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    app:tint="#8C8C8C" />
+            <TextView
+                android:id="@+id/tv_toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="20dp"
+                android:text="@string/popular_movies"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/imd_btn_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:background="@color/Yellow"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:padding="15dp"
+                android:src="@drawable/ic_search"
+                android:visibility="gone" />
 
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:text="@string/popular_movies"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-            </RelativeLayout>
-        </androidx.cardview.widget.CardView>
+        </androidx.appcompat.widget.Toolbar>
 
 
         <ProgressBar
@@ -70,18 +84,34 @@
             app:layout_constraintTop_toTopOf="parent" />
 
 
-        <EditText
+        <androidx.appcompat.widget.AppCompatEditText
             android:id="@+id/search_edit_text"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:autofillHints="Search Comments By Id"
-            android:focusable="false"
-            android:inputType="numberSigned"
+            android:layout_margin="10dp"
+            android:background="@drawable/rectangle_shape"
+            android:elevation="50dp"
+            android:hint="@string/search_movies"
+            android:imeOptions="actionDone"
+            android:padding="10dp"
+            android:singleLine="true"
             android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toStartOf="@+id/iv_clear_search"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_clear_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:layout_marginEnd="10dp"
+            android:src="@drawable/ic_clear"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/search_edit_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/search_edit_text"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 
         <androidx.fragment.app.FragmentContainerView
@@ -93,7 +123,7 @@
             app:layout_constraintBottom_toTopOf="@+id/bnv_view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cvAppbar"
+            app:layout_constraintTop_toBottomOf="@+id/search_edit_text"
             app:navGraph="@navigation/nav_graph"
             tools:layout="@layout/movie_list_fragment" />
 
@@ -110,8 +140,9 @@
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bnv_view"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            app:itemIconTint="@color/Yellow"
+            android:layout_height="65dp"
+            android:background="@color/Yellow"
+            app:itemIconTint="@color/black"
             app:itemTextColor="@color/black"
             app:labelVisibilityMode="selected"
             app:layout_constraintBottom_toBottomOf="parent"

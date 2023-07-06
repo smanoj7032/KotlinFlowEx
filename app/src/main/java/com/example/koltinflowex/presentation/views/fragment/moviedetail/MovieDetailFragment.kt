@@ -43,9 +43,9 @@ class MovieDetailFragment : BaseFragment<MovieDetailFragmentBinding>() {
     private fun setData(movieDetailsResponse: MovieDetail) {
         activity?.loadImage(
             POSTER_BASE_URL + movieDetailsResponse.poster_path,
-            binding.imgMovie
+            mainbinding.imgMovie
         )
-        binding.apply {
+        mainbinding.apply {
             tvMovieTitle.text = movieDetailsResponse.title.toString()
             tvMovieDateRelease.text = movieDetailsResponse.release_date
             tvMovieOverview.text = movieDetailsResponse.overview
