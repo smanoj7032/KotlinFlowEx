@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -31,15 +32,15 @@ fun <T> Flow<State<T>>.emitter(
     return onEach { state ->
         when (state.status) {
             Status.SUCCESS -> {
-                mutableStateFlow.value = state
+                mutableStateFlow.value = State.success(state.data)
             }
 
             Status.ERROR -> {
-                mutableStateFlow.value = state
+                mutableStateFlow.value = State.error(state.message, true)
             }
 
             else -> {
-                mutableStateFlow.value = state
+                mutableStateFlow.value = State.loading()
             }
         }
     }.catch { throwable ->
@@ -75,7 +76,22 @@ fun <T> MutableStateFlow<State<T>>.customCollector(
         }
     }
 }
-
+fun StateFlow<State<PagingData<Result>>>.customCollectorForPaging(
+    lifecycleScope: CoroutineScope,
+    onLoading: () -> Unit,
+    onSuccess: (PagingData<Result>) -> Unit,
+    onError: (Throwable) -> Unit
+): Job {
+    return this.onEach { state ->
+        when (state.status) {
+            Status.LOADING -> onLoading()
+            Status.SUCCESS -> state.data?.let { onSuccess(it) }
+            Status.ERROR -> state.message?.let { errorMessage ->
+                onError(Exception(errorMessage))
+            }
+        }
+    }.launchIn(lifecycleScope)
+}
 suspend fun <T> executeApiCall(apiCall: suspend () -> Response<T>): Flow<State<T & Any>> {
     return flow {
         try {

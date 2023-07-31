@@ -23,6 +23,7 @@ import com.example.koltinflowex.presentation.common.base.BaseFragment
 import com.example.koltinflowex.presentation.common.customCollector
 import com.example.koltinflowex.presentation.common.loadImage
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 
@@ -126,7 +127,10 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
 
     private fun setObserver() {
         moviesViewModel.popularMovies.customCollector(
-            this, onLoading = ::onLoading, onSuccess = {
+            this, onLoading = ::onLoading, onSuccess = { it ->
+                movieListAdapter.loadStateFlow.catch {
+                    onError(it,true)
+                }
                 popularMovies = it
                 lifecycleScope.launch {
                     movieListAdapter.submitData(popularMovies!!)

@@ -1,5 +1,7 @@
 package com.example.koltinflowex.common.network.helper
 
+import java.io.IOException
+
 class State<out T>(
     val status: Status, val data: T?, val message: String?, val showErrorView: Boolean
 ) {
@@ -17,6 +19,7 @@ class State<out T>(
         }
     }
 }
+class CustomNetworkException(val code: Int, message: String) : IOException(message)
 
 
 enum class Status { SUCCESS, ERROR, LOADING }

@@ -56,15 +56,14 @@ class BaseRepoImpl @Inject constructor(private val baseApi: BaseApi) : BaseRepo 
     }
 
     override suspend fun getPopularMovies(scope: CoroutineScope): Flow<State<PagingData<Result>>> {
+        val pagination = Pagination(baseApi, "popular")
         return Pager(
             config = PagingConfig(pageSize = 10, enablePlaceholders = false),
             pagingSourceFactory = {
-                Pagination(baseApi, "popular")
-            }).flow.cachedIn(scope).map { pagingData ->
-            if (Pagination(baseApi, "popular").errorMessage != null)
-                State.error(Pagination(baseApi, "popular").errorMessage, true)
-            else State.success(pagingData)
-
+                pagination
+            }
+        ).flow.cachedIn(scope).map { pagingData ->
+            State.success(pagingData)
         }.catch { e ->
             emit(State.error(e.message, true))
         }.onStart {
