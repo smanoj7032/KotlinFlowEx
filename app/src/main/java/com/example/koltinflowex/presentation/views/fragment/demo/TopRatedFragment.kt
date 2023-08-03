@@ -10,7 +10,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.paging.PagingData
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.koltinflowex.BR
 import com.example.koltinflowex.R
@@ -40,8 +39,10 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
     }
 
 
+    override fun executeApiCall() {
+        lifecycleScope.launch { moviesViewModel.getTopRatedMoviesList() }
+    }
 
-    override fun executeApiCall() {lifecycleScope.launch { moviesViewModel.getTopRatedMoviesList() }}
     override fun initViews() {
         val searchBar = parentActivity?.findViewById<EditText>(R.id.search_edit_text)
         searchBar?.addTextChangedListener(object : TextWatcher {
@@ -60,12 +61,13 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
         })
         searchBar?.setOnEditorActionListener { p0, p1, p2 ->
             if (searchedText != "" && p1 == EditorInfo.IME_ACTION_DONE) {
-                lifecycleScope.launch { moviesViewModel.getTopRatedMoviesList() }
+                lifecycleScope.launch { moviesViewModel.getSearchMovie(searchedText, "top_rated") }
                 return@setOnEditorActionListener true
             } else {
                 return@setOnEditorActionListener false
             }
-        }    }
+        }
+    }
 
     override fun getLayoutResource(): Int {
         return R.layout.top_rated_fragment
@@ -95,8 +97,8 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
             rvTopRated.layoutManager = GridLayoutManager(parentActivity?.applicationContext, 2)
             rvTopRated.adapter = topRatedMoviesAdapter
         }
-      /*  topRatedMoviesAdapter.addLoadStateListener { loadState ->
-            if ( loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
+        topRatedMoviesAdapter.addLoadStateListener { loadState ->
+            if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
                 onLoading(true)
             } else {
                 onLoading(false)
@@ -110,7 +112,7 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
                     onError(Throwable(it.error.message), true)
                 }
             }
-        }*/
+        }
 
     }
 

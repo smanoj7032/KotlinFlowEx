@@ -9,9 +9,6 @@ import com.example.koltinflowex.domain.repository.BaseRepo
 import com.example.koltinflowex.presentation.common.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,6 +24,7 @@ class MoviesViewModel @Inject constructor(
 
     fun getPopularMovies() {
         viewModelScope.launch {
+            popularMovies.value = State.loading()
             baseRepo.getPopularMovies().cachedIn(viewModelScope).collect {
                 popularMovies.value = State.success(it)
             }
@@ -56,25 +54,28 @@ class MoviesViewModel @Inject constructor(
         when (type) {
             "popular" -> {
                 viewModelScope.launch {
-                    baseRepo.getSearchMovie(viewModelScope, search).cachedIn(viewModelScope).collect {
-                        popularMovies.value = State.success(it)
-                    }
+                    baseRepo.getSearchMovie(viewModelScope, search).cachedIn(viewModelScope)
+                        .collect {
+                            popularMovies.value = State.success(it)
+                        }
                 }
             }
 
             "top_rated" -> {
                 viewModelScope.launch {
-                    baseRepo.getSearchMovie(viewModelScope, search).cachedIn(viewModelScope).collect {
-                        topRatedMovies.value = State.success(it)
-                    }
+                    baseRepo.getSearchMovie(viewModelScope, search).cachedIn(viewModelScope)
+                        .collect {
+                            topRatedMovies.value = State.success(it)
+                        }
                 }
             }
 
             "upcoming" -> {
                 viewModelScope.launch {
-                    baseRepo.getSearchMovie(viewModelScope, search).cachedIn(viewModelScope).collect {
-                        upComingMovies.value = State.success(it)
-                    }
+                    baseRepo.getSearchMovie(viewModelScope, search).cachedIn(viewModelScope)
+                        .collect {
+                            upComingMovies.value = State.success(it)
+                        }
                 }
             }
         }

@@ -55,7 +55,7 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
         })
         searchBar?.setOnEditorActionListener { p0, p1, p2 ->
             if (searchedText != "" && p1 == EditorInfo.IME_ACTION_DONE) {
-                lifecycleScope.launch { moviesViewModel.getUpcomingMoviesList() }
+                lifecycleScope.launch { moviesViewModel.getSearchMovie(searchedText,"upcoming") }
                 return@setOnEditorActionListener true
             } else {
                 return@setOnEditorActionListener false
