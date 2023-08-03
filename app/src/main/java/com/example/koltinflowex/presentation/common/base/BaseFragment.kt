@@ -11,6 +11,7 @@ import androidx.annotation.IdRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.example.koltinflowex.R
 import com.example.koltinflowex.common.network.connectionhelper.NetworkChangeCallback
@@ -24,16 +25,20 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
     lateinit var mainbinding: Binding
     open val onRetry: (() -> Unit)? = null
     private var networkChangeReceiver: NetworkChangeReceiver? = null
-
     val parentActivity: BaseActivity<*>?
         get() = activity as? BaseActivity<*>
+    private val viewModel: BaseViewModel by lazy {
+        ViewModelProvider(this)[BaseViewModel::class.java]
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         onCreateView(view, savedInstanceState)
         initViews()
-        if (parentActivity?.isNetworkAvailable() == true) executeApiCall()
-
+        if (!viewModel.apiCallExecuted && parentActivity?.isNetworkAvailable() == true) {
+            executeApiCall()
+            viewModel.apiCallExecuted=true
+        }
         view.findViewById<ErrorView>(R.id.error_view)?.onRetry = onRetry
     }
 
@@ -96,6 +101,8 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
     }
 
     override fun onNetworkChanged(status: Boolean?) {
-        if (status == true ) executeApiCall()
+        if (status == true && !viewModel.apiCallExecuted ) {
+            executeApiCall()
+        }
     }
 }
