@@ -8,6 +8,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -50,7 +51,7 @@ fun Activity.hideKeyBoard() {
     manager.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 }
 
-fun Context.loadImage(imageUrl: String?, imageView: ImageView) {
+fun Context.loadImage(imageUrl: String?, imageView: ImageView,progressBar: ProgressBar) {
     Glide.with(this).load(imageUrl)
         .placeholder(R.drawable.placeholder)
         .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)

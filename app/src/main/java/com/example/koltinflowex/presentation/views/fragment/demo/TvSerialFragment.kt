@@ -86,7 +86,7 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
         ) {
             override fun onBind(binding: ItemPhotosListBinding, item: Result, position: Int) {
                 super.onBind(binding, item, position)
-                parentActivity?.loadImage(POSTER_BASE_URL + item.poster_path, binding.ivPhoto)
+                parentActivity?.loadImage(POSTER_BASE_URL + item.poster_path, binding.ivPhoto,binding.progressBar)
                 binding.tvMovieName.text = item.title
                 binding.cvImage.setOnClickListener {
                     val bundle = Bundle()

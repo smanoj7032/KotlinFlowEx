@@ -80,6 +80,7 @@ abstract class BaseActivity<Binding : ViewDataBinding> : AppCompatActivity(),
                 finish()
             }.build()
         biometricPrompt.authenticate(getCancellation(), mainExecutor, authenticationCallback)
+        checkBiometricSupport()
         onCreateView()
         if (this.isNetworkAvailable()) {
             executeApiCall()

@@ -78,7 +78,7 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
             override fun onBind(binding: ItemPhotosListBinding, item: Result, position: Int) {
                 super.onBind(binding, item, position)
                 parentActivity?.loadImage(
-                    POSTER_BASE_URL + item.poster_path, binding.ivPhoto
+                    POSTER_BASE_URL + item.poster_path, binding.ivPhoto,binding.progressBar
                 )
                 binding.tvMovieName.text = item.title
 
