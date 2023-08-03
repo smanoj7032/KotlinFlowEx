@@ -19,8 +19,8 @@
             android:id="@+id/cvImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:elevation="10dp"
             android:clickable="true"
+            android:elevation="10dp"
             android:focusable="true"
             android:foreground="?android:attr/selectableItemBackground"
             android:hapticFeedbackEnabled="true"
@@ -37,8 +37,22 @@
                 android:adjustViewBounds="true"
                 android:scaleType="fitXY"
                 android:src="@drawable/placeholder" />
+
         </androidx.cardview.widget.CardView>
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvMovieName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:singleLine="true"
+            android:text="Movie Name"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cvImage" />
 
         <ProgressBar
             android:id="@+id/progressBar"

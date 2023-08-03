@@ -9,7 +9,6 @@ import android.widget.EditText
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.koltinflowex.BR
 import com.example.koltinflowex.R
@@ -31,13 +30,18 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
     private val moviesViewModel: MoviesViewModel by viewModels()
     private var searchedText = ""
     private lateinit var adapter: RVAdapterWithPaging<Result, ItemPhotosListBinding>
+    var isFirstLoad = true
+
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
         setAdapter()
         setObserver()
     }
 
-    override fun executeApiCall() {lifecycleScope.launch { moviesViewModel.getUpcomingMoviesList() }}
+    override fun executeApiCall() {
+        lifecycleScope.launch { moviesViewModel.getUpcomingMoviesList() }
+    }
+
     override fun initViews() {
         val searchBar = parentActivity?.findViewById<EditText>(R.id.search_edit_text)
         searchBar?.addTextChangedListener(object : TextWatcher {
@@ -55,12 +59,13 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
         })
         searchBar?.setOnEditorActionListener { p0, p1, p2 ->
             if (searchedText != "" && p1 == EditorInfo.IME_ACTION_DONE) {
-                lifecycleScope.launch { moviesViewModel.getSearchMovie(searchedText,"upcoming") }
+                lifecycleScope.launch { moviesViewModel.getSearchMovie(searchedText, "upcoming") }
                 return@setOnEditorActionListener true
             } else {
                 return@setOnEditorActionListener false
             }
-        }    }
+        }
+    }
 
     override fun getLayoutResource(): Int {
         return R.layout.tv_serial_fragment
@@ -82,6 +87,7 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
             override fun onBind(binding: ItemPhotosListBinding, item: Result, position: Int) {
                 super.onBind(binding, item, position)
                 parentActivity?.loadImage(POSTER_BASE_URL + item.poster_path, binding.ivPhoto)
+                binding.tvMovieName.text = item.title
                 binding.cvImage.setOnClickListener {
                     val bundle = Bundle()
                     bundle.putInt("movieId", item.id!!)
@@ -94,15 +100,26 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
             }
         }
         mainbinding.apply {
-            rvTopRated.layoutManager = GridLayoutManager(parentActivity?.applicationContext, 2)
+            val layoutManager = GridLayoutManager(parentActivity?.applicationContext, 3)
+            val footerAdapter = LoadMoreAdapter { adapter.retry() }
+            val headerAdapter = LoadMoreAdapter { adapter.retry() }
+            layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    return if ((position == adapter.itemCount) && footerAdapter.itemCount > 0) 3
+                    else if (adapter.itemCount == 0 && headerAdapter.itemCount > 0) 3
+                    else 1
+                }
+            }
+            rvTopRated.layoutManager = layoutManager
             rvTopRated.adapter = adapter
-            rvTopRated.adapter =
-                adapter.withLoadStateHeaderAndFooter(LoadMoreAdapter { adapter.retry() },
-                    LoadMoreAdapter { adapter.retry() })
+            rvTopRated.adapter = adapter.withLoadStateHeaderAndFooter(headerAdapter, footerAdapter)
         }
         adapter.addLoadStateListener { loadState ->
             if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
-                onLoading(true)
+                if (isFirstLoad) {
+                    onLoading(true)
+                    isFirstLoad = false
+                }
             } else {
                 onLoading(false)
                 val errorState = when {

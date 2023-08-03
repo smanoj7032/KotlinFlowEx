@@ -37,7 +37,7 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
         initViews()
         if (!viewModel.apiCallExecuted && parentActivity?.isNetworkAvailable() == true) {
             executeApiCall()
-            viewModel.apiCallExecuted=true
+            viewModel.apiCallExecuted = true
         }
         view.findViewById<ErrorView>(R.id.error_view)?.onRetry = onRetry
     }
@@ -101,7 +101,7 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
     }
 
     override fun onNetworkChanged(status: Boolean?) {
-        if (status == true && !viewModel.apiCallExecuted ) {
+        if (status == true && !viewModel.apiCallExecuted) {
             executeApiCall()
         }
     }

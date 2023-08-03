@@ -9,7 +9,6 @@ import android.widget.EditText
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
-import androidx.paging.PagingData
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.koltinflowex.BR
 import com.example.koltinflowex.R
@@ -17,6 +16,7 @@ import com.example.koltinflowex.common.network.api.POSTER_BASE_URL
 import com.example.koltinflowex.data.model.Result
 import com.example.koltinflowex.databinding.ItemPhotosListBinding
 import com.example.koltinflowex.databinding.TopRatedFragmentBinding
+import com.example.koltinflowex.presentation.common.adapter.LoadMoreAdapter
 import com.example.koltinflowex.presentation.common.adapter.RVAdapterWithPaging
 import com.example.koltinflowex.presentation.common.base.BaseFragment
 import com.example.koltinflowex.presentation.common.customCollector
@@ -30,8 +30,7 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
     private val moviesViewModel: MoviesViewModel by viewModels()
     private lateinit var topRatedMoviesAdapter: RVAdapterWithPaging<Result, ItemPhotosListBinding>
     private var searchedText = ""
-    private var popularMovies: PagingData<Result>? = null
-
+    var isFirstLoad = true
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
         setAdapter()
@@ -54,7 +53,6 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
 
             override fun afterTextChanged(p0: Editable?) {
                 if (searchedText == "") {
-                    popularMovies = null
                     lifecycleScope.launch { moviesViewModel.getTopRatedMoviesList() }
                 }
             }
@@ -82,6 +80,7 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
                 parentActivity?.loadImage(
                     POSTER_BASE_URL + item.poster_path, binding.ivPhoto
                 )
+                binding.tvMovieName.text = item.title
                 binding.cvImage.setOnClickListener {
                     val bundle = Bundle()
                     bundle.putInt("movieId", item.id!!)
@@ -94,12 +93,27 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
             }
         }
         mainbinding.apply {
-            rvTopRated.layoutManager = GridLayoutManager(parentActivity?.applicationContext, 2)
+            val layoutManager = GridLayoutManager(parentActivity?.applicationContext, 3)
+            val footerAdapter = LoadMoreAdapter { topRatedMoviesAdapter.retry() }
+            val headerAdapter = LoadMoreAdapter { topRatedMoviesAdapter.retry() }
+            layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    return if ((position == topRatedMoviesAdapter.itemCount) && footerAdapter.itemCount > 0) 3
+                    else if (topRatedMoviesAdapter.itemCount == 0 && headerAdapter.itemCount > 0) 3
+                    else 1
+                }
+            }
+            rvTopRated.layoutManager = layoutManager
             rvTopRated.adapter = topRatedMoviesAdapter
+            rvTopRated.adapter =
+                topRatedMoviesAdapter.withLoadStateHeaderAndFooter(headerAdapter, footerAdapter)
         }
         topRatedMoviesAdapter.addLoadStateListener { loadState ->
             if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
-                onLoading(true)
+                if (isFirstLoad) {
+                    onLoading(true)
+                    isFirstLoad = false
+                }
             } else {
                 onLoading(false)
                 val errorState = when {
@@ -113,7 +127,6 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
                 }
             }
         }
-
     }
 
     private fun setObserver() {
@@ -123,10 +136,5 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
             onSuccess = { lifecycleScope.launch { topRatedMoviesAdapter.submitData(it) } },
             onError = ::onError
         )
-    }
-
-    override fun onNetworkChanged(status: Boolean?) {
-        super.onNetworkChanged(status)
-
     }
 }

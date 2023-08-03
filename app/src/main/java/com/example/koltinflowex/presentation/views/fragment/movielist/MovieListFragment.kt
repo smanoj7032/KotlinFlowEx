@@ -29,7 +29,7 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
     private val moviesViewModel: MoviesViewModel by viewModels()
     private lateinit var movieListAdapter: RVAdapterWithPaging<Result, ItemPhotosListBinding>
     var searchedText = ""
-
+    var isFirstLoad = true
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
         setAdapter()
@@ -80,6 +80,7 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
                 parentActivity?.loadImage(
                     POSTER_BASE_URL + item.poster_path, binding.ivPhoto
                 )
+                binding.tvMovieName.text = item.title
 
                 binding.cvImage.setOnClickListener {
                     val bundle = Bundle()
@@ -93,16 +94,30 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
             }
 
         }
-        mainbinding.rvComments.layoutManager =
-            GridLayoutManager(parentActivity?.applicationContext, 2)
+        val layoutManager = GridLayoutManager(parentActivity?.applicationContext, 3)
+        val footerAdapter = LoadMoreAdapter { movieListAdapter.retry() }
+        val headerAdapter = LoadMoreAdapter { movieListAdapter.retry() }
+        layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return if ((position == movieListAdapter.itemCount) && footerAdapter.itemCount > 0) 3
+                else if (movieListAdapter.itemCount == 0 && headerAdapter.itemCount > 0) 3
+                else 1
+            }
+        }
+        mainbinding.rvComments.layoutManager = layoutManager
         mainbinding.rvComments.adapter = movieListAdapter
-        mainbinding.rvComments.adapter =
-            movieListAdapter.withLoadStateHeaderAndFooter(header = LoadMoreAdapter { movieListAdapter.retry() },
-                footer = LoadMoreAdapter { movieListAdapter.retry() })
 
+        mainbinding.rvComments.adapter =
+            movieListAdapter.withLoadStateHeaderAndFooter(
+                header = headerAdapter,
+                footer = footerAdapter
+            )
         movieListAdapter.addLoadStateListener { loadState ->
             if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
-                onLoading(true)
+                if (isFirstLoad) {
+                    onLoading(true)
+                    isFirstLoad = false
+                }
             } else {
                 onLoading(false)
                 val errorState = when {
