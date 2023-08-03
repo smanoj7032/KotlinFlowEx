@@ -7,9 +7,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
-import android.widget.EditText
 import androidx.annotation.IdRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
@@ -30,16 +27,13 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
 
     val parentActivity: BaseActivity<*>?
         get() = activity as? BaseActivity<*>
-    private var isApiHit = false
-    private var isFirstTime = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         onCreateView(view, savedInstanceState)
-        if (parentActivity?.isNetworkAvailable() == true) {
-            executeApiCall()
-            isApiHit = true
-        }
+        initViews()
+        if (parentActivity?.isNetworkAvailable() == true) executeApiCall()
+
         view.findViewById<ErrorView>(R.id.error_view)?.onRetry = onRetry
     }
 
@@ -49,9 +43,6 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
         parentActivity?.registerReceiver(
             networkChangeReceiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         )
-        if (parentActivity?.isNetworkAvailable() == true) {
-            executePagingApiCall()
-        }
     }
 
     override fun onCreateView(
@@ -73,8 +64,8 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
     }
 
     protected abstract fun onCreateView(view: View, saveInstanceState: Bundle?)
-    protected abstract fun executePagingApiCall()
     protected abstract fun executeApiCall()
+    protected abstract fun initViews()
     protected abstract fun getLayoutResource(): Int
 
     fun onLoading(show: Boolean) {
@@ -89,12 +80,13 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
         parentActivity?.onError(error, showErrorView)
     }
 
-    fun View.navigateWithId(id: Int, @IdRes currentDestinationId: Int?, bundle: Bundle? = null) = try {
-        activity?.hideKeyBoard()
-        this.findNavController().navigate(id, bundle)
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
+    fun View.navigateWithId(id: Int, @IdRes currentDestinationId: Int?, bundle: Bundle? = null) =
+        try {
+            activity?.hideKeyBoard()
+            this.findNavController().navigate(id, bundle)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
     fun View.navigateBack() = try {
         activity?.hideKeyBoard()
@@ -104,12 +96,6 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
     }
 
     override fun onNetworkChanged(status: Boolean?) {
-        if (status == true && !isApiHit) {
-            executePagingApiCall()
-        }
-        if (status == true && isFirstTime) {
-            executeApiCall()
-        }
-        isFirstTime = true
+        if (status == true ) executeApiCall()
     }
 }

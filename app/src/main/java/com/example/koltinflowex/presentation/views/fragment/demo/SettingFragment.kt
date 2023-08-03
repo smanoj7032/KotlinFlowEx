@@ -15,9 +15,10 @@ class SettingFragment : BaseFragment<SettingFragmentBinding>() {
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {}
 
-    override fun executePagingApiCall() {}
 
     override fun executeApiCall() {}
+    override fun initViews() {
+    }
 
     override fun getLayoutResource(): Int {
         return R.layout.setting_fragment

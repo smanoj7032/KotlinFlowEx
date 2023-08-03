@@ -17,6 +17,6 @@ class MovieDetailViewModel @Inject constructor(private val baseRepo: BaseRepo) :
     val movieDetail = MutableStateFlow(State(Status.LOADING, MovieDetail(), null, false))
 
     fun getMovieDetail(id: Int?) {
-        viewModelScope.launch { baseRepo.getPopularMoviesDetails(id).emitter(movieDetail, false) }
+        viewModelScope.launch { baseRepo.getPopularMoviesDetails(id).emitter(movieDetail) }
     }
 }

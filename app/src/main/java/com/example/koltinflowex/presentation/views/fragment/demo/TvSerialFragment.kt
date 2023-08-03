@@ -8,7 +8,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.PagingData
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.koltinflowex.BR
@@ -29,21 +29,16 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
     private val moviesViewModel: MoviesViewModel by viewModels()
-    private var popularMovies: PagingData<Result>? = null
     private var searchedText = ""
     private lateinit var adapter: RVAdapterWithPaging<Result, ItemPhotosListBinding>
-    private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Result>() {
-        override fun areItemsTheSame(oldItem: Result, newItem: Result): Boolean {
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: Result, newItem: Result): Boolean {
-            return oldItem == newItem
-        }
-    }
-
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
+        setAdapter()
+        setObserver()
+    }
+
+    override fun executeApiCall() {lifecycleScope.launch { moviesViewModel.getUpcomingMoviesList() }}
+    override fun initViews() {
         val searchBar = parentActivity?.findViewById<EditText>(R.id.search_edit_text)
         searchBar?.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
@@ -54,28 +49,18 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
 
             override fun afterTextChanged(p0: Editable?) {
                 if (searchedText == "") {
-                    popularMovies = null
-                    moviesViewModel.getUpcomingMoviesList()
+                    lifecycleScope.launch { moviesViewModel.getUpcomingMoviesList() }
                 }
             }
         })
         searchBar?.setOnEditorActionListener { p0, p1, p2 ->
             if (searchedText != "" && p1 == EditorInfo.IME_ACTION_DONE) {
-                moviesViewModel.getSearchMovie(searchedText, "upComing")
+                lifecycleScope.launch { moviesViewModel.getUpcomingMoviesList() }
                 return@setOnEditorActionListener true
             } else {
                 return@setOnEditorActionListener false
             }
-        }
-        setAdapter()
-        setObserver()
-    }
-
-    override fun executePagingApiCall() {
-        moviesViewModel.getUpcomingMoviesList()
-    }
-
-    override fun executeApiCall() {}
+        }    }
 
     override fun getLayoutResource(): Int {
         return R.layout.tv_serial_fragment
@@ -83,12 +68,11 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
 
     private fun setObserver() {
         moviesViewModel.upComingMovies.customCollector(
-            this,
-            onError = ::onError,
+            this@TvSerialFragment,
             onLoading = ::onLoading,
-            onSuccess = {
-                lifecycleScope.launch { adapter.submitData(it) }
-            })
+            onSuccess = { lifecycleScope.launch { adapter.submitData(it) } },
+            onError = ::onError
+        )
     }
 
     private fun setAdapter() {
@@ -115,6 +99,22 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
             rvTopRated.adapter =
                 adapter.withLoadStateHeaderAndFooter(LoadMoreAdapter { adapter.retry() },
                     LoadMoreAdapter { adapter.retry() })
+        }
+        adapter.addLoadStateListener { loadState ->
+            if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
+                onLoading(true)
+            } else {
+                onLoading(false)
+                val errorState = when {
+                    loadState.append is LoadState.Error -> loadState.append as LoadState.Error
+                    loadState.prepend is LoadState.Error -> loadState.prepend as LoadState.Error
+                    loadState.refresh is LoadState.Error -> loadState.refresh as LoadState.Error
+                    else -> null
+                }
+                errorState?.let {
+                    onError(Throwable(it.error.message), true)
+                }
+            }
         }
     }
 }

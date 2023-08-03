@@ -21,11 +21,14 @@ class MovieDetailFragment : BaseFragment<MovieDetailFragmentBinding>() {
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {setObserver() }
 
-    override fun executePagingApiCall() {}
 
     override fun executeApiCall() {
         movieId= arguments?.getInt("movieId")!!
         viewModel.getMovieDetail(movieId)
+    }
+
+    override fun initViews() {
+
     }
 
     override fun getLayoutResource(): Int {

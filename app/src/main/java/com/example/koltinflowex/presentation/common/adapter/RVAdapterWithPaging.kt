@@ -7,6 +7,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.koltinflowex.data.model.Result
 
 
 abstract class RVAdapterWithPaging<M : Any, B : ViewDataBinding>(
@@ -37,5 +38,15 @@ abstract class RVAdapterWithPaging<M : Any, B : ViewDataBinding>(
     }
 
     class Holder<S : ViewDataBinding>(val binding: S) : RecyclerView.ViewHolder(binding.root)
+    companion object {
+        val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Result>() {
+            override fun areItemsTheSame(oldItem: Result, newItem: Result): Boolean {
+                return oldItem.id == newItem.id
+            }
 
+            override fun areContentsTheSame(oldItem: Result, newItem: Result): Boolean {
+                return oldItem == newItem
+            }
+        }
+    }
 }
