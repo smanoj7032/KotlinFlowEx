@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.koltinflowex.BR
 import com.example.koltinflowex.R
 import com.example.koltinflowex.common.network.api.POSTER_BASE_URL
+import com.example.koltinflowex.common.network.api.UPCOMING_MOVIES
 import com.example.koltinflowex.data.model.Result
 import com.example.koltinflowex.databinding.ItemPhotosListBinding
 import com.example.koltinflowex.databinding.TvSerialFragmentBinding
@@ -35,11 +36,11 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
         setAdapter()
-        setObserver()
     }
 
     override fun executeApiCall() {
-        lifecycleScope.launch { moviesViewModel.getUpcomingMoviesList() }
+        if (!moviesViewModel.isApiCallExecuted(UPCOMING_MOVIES))
+            lifecycleScope.launch { moviesViewModel.getUpcomingMoviesList() }
     }
 
     override fun initViews() {
@@ -59,7 +60,12 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
         })
         searchBar?.setOnEditorActionListener { p0, p1, p2 ->
             if (searchedText != "" && p1 == EditorInfo.IME_ACTION_DONE) {
-                lifecycleScope.launch { moviesViewModel.getSearchMovie(searchedText, "upcoming") }
+                lifecycleScope.launch {
+                    moviesViewModel.getSearchMovie(
+                        searchedText,
+                        UPCOMING_MOVIES
+                    )
+                }
                 return@setOnEditorActionListener true
             } else {
                 return@setOnEditorActionListener false
@@ -71,10 +77,10 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
         return R.layout.tv_serial_fragment
     }
 
-    private fun setObserver() {
+    override fun setObserver() {
         moviesViewModel.upComingMovies.customCollector(
             this@TvSerialFragment,
-            onLoading = ::onLoading,
+            onLoading = { if (it) parentActivity?.showLineScaleLoading() else parentActivity?.hideLineScaleLoading() },
             onSuccess = { lifecycleScope.launch { adapter.submitData(it) } },
             onError = ::onError
         )
@@ -86,7 +92,10 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
         ) {
             override fun onBind(binding: ItemPhotosListBinding, item: Result, position: Int) {
                 super.onBind(binding, item, position)
-                parentActivity?.loadImage(POSTER_BASE_URL + item.poster_path, binding.ivPhoto,binding.progressBar)
+                parentActivity?.loadImage(
+                    POSTER_BASE_URL + item.poster_path,
+                    binding.ivPhoto
+                )
                 binding.tvMovieName.text = item.title
                 binding.cvImage.setOnClickListener {
                     val bundle = Bundle()
@@ -117,11 +126,11 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
         adapter.addLoadStateListener { loadState ->
             if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
                 if (isFirstLoad) {
-                    onLoading(true)
+                  parentActivity?.showLineScaleLoading()
                     isFirstLoad = false
                 }
             } else {
-                onLoading(false)
+         parentActivity?.hideLineScaleLoading()
                 val errorState = when {
                     loadState.append is LoadState.Error -> loadState.append as LoadState.Error
                     loadState.prepend is LoadState.Error -> loadState.prepend as LoadState.Error
@@ -129,6 +138,7 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
                     else -> null
                 }
                 errorState?.let {
+                    moviesViewModel.apiCallExecuted[UPCOMING_MOVIES] = false
                     onError(Throwable(it.error.message), true)
                 }
             }

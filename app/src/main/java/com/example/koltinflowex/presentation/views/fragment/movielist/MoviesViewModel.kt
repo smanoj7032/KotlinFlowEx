@@ -3,6 +3,10 @@ package com.example.koltinflowex.presentation.views.fragment.movielist
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.example.koltinflowex.common.network.api.POPULAR_MOVIES
+import com.example.koltinflowex.common.network.api.SEARCH_MOVIES
+import com.example.koltinflowex.common.network.api.TOP_RATED_MOVIES
+import com.example.koltinflowex.common.network.api.UPCOMING_MOVIES
 import com.example.koltinflowex.common.network.helper.State
 import com.example.koltinflowex.data.model.Result
 import com.example.koltinflowex.domain.repository.BaseRepo
@@ -24,9 +28,9 @@ class MoviesViewModel @Inject constructor(
 
     fun getPopularMovies() {
         viewModelScope.launch {
-            popularMovies.value = State.loading()
             baseRepo.getPopularMovies().cachedIn(viewModelScope).collect {
                 popularMovies.value = State.success(it)
+                apiCallExecuted[POPULAR_MOVIES] = true
             }
         }
     }
@@ -35,6 +39,7 @@ class MoviesViewModel @Inject constructor(
         viewModelScope.launch {
             baseRepo.getTopRatedMoviesList().cachedIn(viewModelScope).collect {
                 topRatedMovies.value = State.success(it)
+                apiCallExecuted[TOP_RATED_MOVIES] = true
             }
         }
 
@@ -44,6 +49,7 @@ class MoviesViewModel @Inject constructor(
         viewModelScope.launch {
             baseRepo.getUpcomingMoviesList().cachedIn(viewModelScope).collect {
                 upComingMovies.value = State.success(it)
+                apiCallExecuted[UPCOMING_MOVIES] = true
             }
         }
 
@@ -52,29 +58,32 @@ class MoviesViewModel @Inject constructor(
     fun getSearchMovie(search: String, type: String) {
         viewModelScope.launch {}
         when (type) {
-            "popular" -> {
+            POPULAR_MOVIES -> {
                 viewModelScope.launch {
                     baseRepo.getSearchMovie(viewModelScope, search).cachedIn(viewModelScope)
                         .collect {
                             popularMovies.value = State.success(it)
+                            apiCallExecuted[SEARCH_MOVIES] = true
                         }
                 }
             }
 
-            "top_rated" -> {
+            TOP_RATED_MOVIES -> {
                 viewModelScope.launch {
                     baseRepo.getSearchMovie(viewModelScope, search).cachedIn(viewModelScope)
                         .collect {
                             topRatedMovies.value = State.success(it)
+                            apiCallExecuted[SEARCH_MOVIES] = true
                         }
                 }
             }
 
-            "upcoming" -> {
+            UPCOMING_MOVIES -> {
                 viewModelScope.launch {
                     baseRepo.getSearchMovie(viewModelScope, search).cachedIn(viewModelScope)
                         .collect {
                             upComingMovies.value = State.success(it)
+                            apiCallExecuted[SEARCH_MOVIES] = true
                         }
                 }
             }

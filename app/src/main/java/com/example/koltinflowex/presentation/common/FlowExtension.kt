@@ -28,7 +28,7 @@ import retrofit2.Response
 
 fun <T> Flow<State<T>>.emitter(
     mutableStateFlow: MutableStateFlow<State<T>>,
-    scope: CoroutineScope = CoroutineScope(Dispatchers.IO) // Provide a default scope
+    scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 ) {
     this.onEach { state ->
         when (state.status) {

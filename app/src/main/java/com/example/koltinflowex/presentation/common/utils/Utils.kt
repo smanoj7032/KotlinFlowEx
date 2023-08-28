@@ -7,6 +7,7 @@ import java.io.Serializable
 import java.net.HttpURLConnection
 
 
+
 open class SimpleApiResponse : Serializable {
     @SerializedName("code")
     var status = ""

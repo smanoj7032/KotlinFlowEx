@@ -9,7 +9,7 @@ import retrofit2.http.Query
 
 interface BaseApi {
     @GET("movie/popular")
-    suspend fun getPopularMoviesList(@Query("page") page: Int): Response<MoviesListResponse>
+    suspend fun getPopularMoviesList(@Query("page") page: Int, @Query("include_adult") include_adult: Boolean): Response<MoviesListResponse>
 
     @GET("search/movie")
     suspend fun searchMovie(
@@ -20,10 +20,10 @@ interface BaseApi {
     ): Response<MoviesListResponse>
 
     @GET("movie/top_rated")
-    suspend fun getTopRatedMoviesList(@Query("page") page: Int): Response<MoviesListResponse>
+    suspend fun getTopRatedMoviesList(@Query("page") page: Int, @Query("include_adult") include_adult: Boolean): Response<MoviesListResponse>
 
     @GET("movie/upcoming")
-    suspend fun getTvSerialMoviesList(@Query("page") page: Int): Response<MoviesListResponse>
+    suspend fun getTvSerialMoviesList(@Query("page",) page: Int, @Query("include_adult") include_adult: Boolean): Response<MoviesListResponse>
 
     @GET("movie/{movie_id}")
     suspend fun getMovieDetails(@Path("movie_id") id: Int?): Response<MovieDetail>

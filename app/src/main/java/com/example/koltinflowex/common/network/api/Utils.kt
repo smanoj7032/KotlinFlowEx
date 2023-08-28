@@ -7,3 +7,8 @@ const val USERNAME = "username"
 const val PASSWORD = ".param"
 
 const val NETWORK_TIMEOUT = 60L
+const val POPULAR_MOVIES="popular"
+const val TOP_RATED_MOVIES="top_rated"
+const val UPCOMING_MOVIES="upcoming"
+const val SEARCH_MOVIES="search"
+

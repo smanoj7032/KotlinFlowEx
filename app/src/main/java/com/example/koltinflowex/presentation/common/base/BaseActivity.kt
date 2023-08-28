@@ -31,6 +31,7 @@ import com.example.koltinflowex.presentation.MyApplication
 import com.example.koltinflowex.presentation.common.compooundviews.ErrorView
 import com.example.koltinflowex.presentation.common.hideKeyBoard
 import com.example.koltinflowex.presentation.common.isNetworkAvailable
+import com.example.koltinflowex.presentation.common.loader.Loader
 import com.example.koltinflowex.presentation.common.showToast
 import com.example.koltinflowex.presentation.common.utils.AlertManager
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -46,6 +47,7 @@ abstract class BaseActivity<Binding : ViewDataBinding> : AppCompatActivity(),
     private var isApiHit = false
     private var isFirstTime = false
     private var isBNVHide = false
+    private var lineScaleLoader: Loader? = null
     private var cancellationSignal: CancellationSignal? = null
     private val authenticationCallback: BiometricPrompt.AuthenticationCallback
         get() = @RequiresApi(Build.VERSION_CODES.P) object :
@@ -214,5 +216,16 @@ abstract class BaseActivity<Binding : ViewDataBinding> : AppCompatActivity(),
         }
         return cancellationSignal as CancellationSignal
     }
+    fun showLineScaleLoading(message: String? = null) {
+        lineScaleLoader?.lineScaleLoader?.dismiss()
+        lineScaleLoader = Loader (this)
+        lineScaleLoader ?. showMessage (message)
+        if (lineScaleLoader?.lineScaleLoader?.isShowing == true)
+            return
+        lineScaleLoader?.lineScaleLoader?.show()
+    }
 
+    fun hideLineScaleLoading() {
+        lineScaleLoader?.lineScaleLoader?.dismiss()
+    }
 }

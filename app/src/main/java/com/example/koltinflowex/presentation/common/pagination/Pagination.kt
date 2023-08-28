@@ -20,9 +20,9 @@ class Pagination(
             val page = params.key ?: 1
             val response = when (type) {
                 "search" -> movieApiService.searchMovie("en-US", search, page, false)
-                "top_rated" -> movieApiService.getTopRatedMoviesList(page)
-                "upcoming" -> movieApiService.getTvSerialMoviesList(page)
-                else -> movieApiService.getPopularMoviesList(page)
+                "top_rated" -> movieApiService.getTopRatedMoviesList(page,false)
+                "upcoming" -> movieApiService.getTvSerialMoviesList(page,false)
+                else -> movieApiService.getPopularMoviesList(page,false)
             }
             if (response.isSuccessful) {
                 val movies = response.body()?.results ?: emptyList()

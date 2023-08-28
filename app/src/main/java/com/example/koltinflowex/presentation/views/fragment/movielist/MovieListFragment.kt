@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.koltinflowex.R
+import com.example.koltinflowex.common.network.api.POPULAR_MOVIES
 import com.example.koltinflowex.common.network.api.POSTER_BASE_URL
 import com.example.koltinflowex.data.model.Result
 import com.example.koltinflowex.databinding.ItemPhotosListBinding
@@ -19,6 +20,7 @@ import com.example.koltinflowex.presentation.common.adapter.LoadMoreAdapter
 import com.example.koltinflowex.presentation.common.adapter.RVAdapterWithPaging
 import com.example.koltinflowex.presentation.common.base.BaseFragment
 import com.example.koltinflowex.presentation.common.customCollector
+import com.example.koltinflowex.presentation.common.isNetworkAvailable
 import com.example.koltinflowex.presentation.common.loadImage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -33,7 +35,6 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
         setAdapter()
-        setObserver()
     }
 
     override fun initViews() {
@@ -47,14 +48,18 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
 
             override fun afterTextChanged(p0: Editable?) {
                 if (searchedText == "") {
-                    lifecycleScope.launch { moviesViewModel.getPopularMovies() }
+                    if (parentActivity?.isNetworkAvailable() == true) {
+                        lifecycleScope.launch { moviesViewModel.getPopularMovies() }
+                    } else {
+                        onError(Throwable("check internet connection"), true)
+                    }
                 }
             }
         })
         searchBar?.setOnEditorActionListener { p0, p1, p2 ->
             if (searchedText != "" && p1 == EditorInfo.IME_ACTION_DONE) {
                 lifecycleScope.launch {
-                    moviesViewModel.getSearchMovie(searchedText, "popular")
+                    moviesViewModel.getSearchMovie(searchedText, POPULAR_MOVIES)
                 }
                 return@setOnEditorActionListener true
             } else {
@@ -64,7 +69,17 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
     }
 
     override fun executeApiCall() {
-        lifecycleScope.launch { moviesViewModel.getPopularMovies() }
+        if (!moviesViewModel.isApiCallExecuted(POPULAR_MOVIES))
+            lifecycleScope.launch { moviesViewModel.getPopularMovies() }
+    }
+
+    override fun setObserver() {
+        moviesViewModel.popularMovies.customCollector(
+            this@MovieListFragment,
+            onLoading = { if (it) parentActivity?.showLineScaleLoading() else parentActivity?.hideLineScaleLoading() },
+            onSuccess = { lifecycleScope.launch { movieListAdapter.submitData(it) } },
+            onError = ::onError
+        )
     }
 
     override fun getLayoutResource(): Int {
@@ -78,7 +93,7 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
             override fun onBind(binding: ItemPhotosListBinding, item: Result, position: Int) {
                 super.onBind(binding, item, position)
                 parentActivity?.loadImage(
-                    POSTER_BASE_URL + item.poster_path, binding.ivPhoto,binding.progressBar
+                    POSTER_BASE_URL + item.poster_path, binding.ivPhoto
                 )
                 binding.tvMovieName.text = item.title
 
@@ -107,19 +122,17 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
         mainbinding.rvComments.layoutManager = layoutManager
         mainbinding.rvComments.adapter = movieListAdapter
 
-        mainbinding.rvComments.adapter =
-            movieListAdapter.withLoadStateHeaderAndFooter(
-                header = headerAdapter,
-                footer = footerAdapter
-            )
+        mainbinding.rvComments.adapter = movieListAdapter.withLoadStateHeaderAndFooter(
+            header = headerAdapter, footer = footerAdapter
+        )
         movieListAdapter.addLoadStateListener { loadState ->
             if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
                 if (isFirstLoad) {
-                    onLoading(true)
+                    parentActivity?.showLineScaleLoading()
                     isFirstLoad = false
                 }
             } else {
-                onLoading(false)
+                parentActivity?.hideLineScaleLoading()
                 val errorState = when {
                     loadState.append is LoadState.Error -> loadState.append as LoadState.Error
                     loadState.prepend is LoadState.Error -> loadState.prepend as LoadState.Error
@@ -128,18 +141,10 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
                 }
                 errorState?.let {
                     onError(Throwable(it.error.message), true)
+                    moviesViewModel.apiCallExecuted[POPULAR_MOVIES] = false
                 }
             }
         }
-    }
-
-    private fun setObserver() {
-        moviesViewModel.popularMovies.customCollector(
-            this@MovieListFragment,
-            onLoading = ::onLoading,
-            onSuccess = { lifecycleScope.launch { movieListAdapter.submitData(it) } },
-            onError = ::onError
-        )
     }
 
 

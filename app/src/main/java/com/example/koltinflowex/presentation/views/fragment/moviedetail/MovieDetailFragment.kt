@@ -9,6 +9,7 @@ import com.example.koltinflowex.data.model.MovieDetail
 import com.example.koltinflowex.databinding.MovieDetailFragmentBinding
 import com.example.koltinflowex.presentation.common.base.BaseFragment
 import com.example.koltinflowex.presentation.common.customCollector
+import com.example.koltinflowex.presentation.common.isNetworkAvailable
 import com.example.koltinflowex.presentation.common.loadImage
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -16,15 +17,17 @@ import dagger.hilt.android.AndroidEntryPoint
 class MovieDetailFragment : BaseFragment<MovieDetailFragmentBinding>() {
     private val viewModel: MovieDetailViewModel by viewModels()
     val bundle = arguments
-    var movieId=0
+    var movieId = 0
 
 
-    override fun onCreateView(view: View, saveInstanceState: Bundle?) {setObserver() }
+    override fun onCreateView(view: View, saveInstanceState: Bundle?) {}
 
 
     override fun executeApiCall() {
-        movieId= arguments?.getInt("movieId")!!
-        viewModel.getMovieDetail(movieId)
+        movieId = arguments?.getInt("movieId")!!
+        if (parentActivity?.isNetworkAvailable() == true) {
+            viewModel.getMovieDetail(movieId)
+        }
     }
 
     override fun initViews() {
@@ -35,18 +38,16 @@ class MovieDetailFragment : BaseFragment<MovieDetailFragmentBinding>() {
         return R.layout.movie_detail_fragment
     }
 
-    private fun setObserver() {
-        viewModel.movieDetail.customCollector(
-            this,
-            onLoading = ::onLoading,
+    override fun setObserver() {
+        viewModel.movieDetail.customCollector(this,
+            onLoading = { if (it) parentActivity?.showLineScaleLoading() else parentActivity?.hideLineScaleLoading() },
             onError = ::onError,
             onSuccess = { setData(it) })
     }
 
     private fun setData(movieDetailsResponse: MovieDetail) {
         activity?.loadImage(
-            POSTER_BASE_URL + movieDetailsResponse.poster_path,
-            mainbinding.imgMovie,mainbinding.imgProgress
+            POSTER_BASE_URL + movieDetailsResponse.poster_path, mainbinding.imgMovie
         )
         mainbinding.apply {
             tvMovieTitle.text = movieDetailsResponse.title.toString()

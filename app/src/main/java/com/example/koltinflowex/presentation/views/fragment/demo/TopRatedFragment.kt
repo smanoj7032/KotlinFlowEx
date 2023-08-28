@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.koltinflowex.BR
 import com.example.koltinflowex.R
 import com.example.koltinflowex.common.network.api.POSTER_BASE_URL
+import com.example.koltinflowex.common.network.api.TOP_RATED_MOVIES
 import com.example.koltinflowex.data.model.Result
 import com.example.koltinflowex.databinding.ItemPhotosListBinding
 import com.example.koltinflowex.databinding.TopRatedFragmentBinding
@@ -34,12 +35,22 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
         setAdapter()
-        setObserver()
     }
 
 
     override fun executeApiCall() {
-        lifecycleScope.launch { moviesViewModel.getTopRatedMoviesList() }
+        if (!moviesViewModel.isApiCallExecuted(TOP_RATED_MOVIES)) lifecycleScope.launch { moviesViewModel.getTopRatedMoviesList() }
+    }
+
+    override fun setObserver() {
+        moviesViewModel.topRatedMovies.customCollector(
+            this@TopRatedFragment,
+            onLoading = { if (it) parentActivity?.showLineScaleLoading() else parentActivity?.hideLineScaleLoading() },
+            onSuccess = {
+                lifecycleScope.launch { topRatedMoviesAdapter.submitData(it) }
+            },
+            onError = ::onError
+        )
     }
 
     override fun initViews() {
@@ -59,7 +70,11 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
         })
         searchBar?.setOnEditorActionListener { p0, p1, p2 ->
             if (searchedText != "" && p1 == EditorInfo.IME_ACTION_DONE) {
-                lifecycleScope.launch { moviesViewModel.getSearchMovie(searchedText, "top_rated") }
+                lifecycleScope.launch {
+                    moviesViewModel.getSearchMovie(
+                        searchedText, TOP_RATED_MOVIES
+                    )
+                }
                 return@setOnEditorActionListener true
             } else {
                 return@setOnEditorActionListener false
@@ -78,7 +93,7 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
             override fun onBind(binding: ItemPhotosListBinding, item: Result, position: Int) {
                 super.onBind(binding, item, position)
                 parentActivity?.loadImage(
-                    POSTER_BASE_URL + item.poster_path, binding.ivPhoto,binding.progressBar
+                    POSTER_BASE_URL + item.poster_path, binding.ivPhoto
                 )
                 binding.tvMovieName.text = item.title
                 binding.cvImage.setOnClickListener {
@@ -111,11 +126,11 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
         topRatedMoviesAdapter.addLoadStateListener { loadState ->
             if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
                 if (isFirstLoad) {
-                    onLoading(true)
+                    parentActivity?.showLineScaleLoading()
                     isFirstLoad = false
                 }
             } else {
-                onLoading(false)
+                parentActivity?.hideLineScaleLoading()
                 val errorState = when {
                     loadState.append is LoadState.Error -> loadState.append as LoadState.Error
                     loadState.prepend is LoadState.Error -> loadState.prepend as LoadState.Error
@@ -124,17 +139,9 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
                 }
                 errorState?.let {
                     onError(Throwable(it.error.message), true)
+                    moviesViewModel.apiCallExecuted[TOP_RATED_MOVIES] = false
                 }
             }
         }
-    }
-
-    private fun setObserver() {
-        moviesViewModel.topRatedMovies.customCollector(
-            this@TopRatedFragment,
-            onLoading = ::onLoading,
-            onSuccess = { lifecycleScope.launch { topRatedMoviesAdapter.submitData(it) } },
-            onError = ::onError
-        )
     }
 }

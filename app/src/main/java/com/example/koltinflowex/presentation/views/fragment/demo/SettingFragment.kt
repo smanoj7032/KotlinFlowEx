@@ -9,14 +9,16 @@ import com.example.koltinflowex.presentation.common.base.BaseFragment
 import com.example.koltinflowex.presentation.views.fragment.movielist.MoviesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
-class SettingFragment : BaseFragment<SettingFragmentBinding>() {
+@AndroidEntryPoint class SettingFragment : BaseFragment<SettingFragmentBinding>() {
     private val moviesViewModel: MoviesViewModel by viewModels()
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {}
 
 
     override fun executeApiCall() {}
+    override fun setObserver() {
+    }
+
     override fun initViews() {
     }
 
