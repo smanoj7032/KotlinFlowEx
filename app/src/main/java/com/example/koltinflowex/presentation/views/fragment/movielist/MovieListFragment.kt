@@ -34,6 +34,10 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
     var isFirstLoad = true
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
+        lifecycleScope.launch {
+            if (parentActivity?.isNetworkAvailable() == true)
+                moviesViewModel.getPopularMovies()
+        }
         setAdapter()
     }
 
@@ -49,7 +53,10 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
             override fun afterTextChanged(p0: Editable?) {
                 if (searchedText == "") {
                     if (parentActivity?.isNetworkAvailable() == true) {
-                        lifecycleScope.launch { moviesViewModel.getPopularMovies() }
+                        lifecycleScope.launch {
+                            if (parentActivity?.isNetworkAvailable() == true)
+                                moviesViewModel.getPopularMovies()
+                        }
                     } else {
                         onError(Throwable("check internet connection"), true)
                     }
@@ -59,6 +66,7 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
         searchBar?.setOnEditorActionListener { p0, p1, p2 ->
             if (searchedText != "" && p1 == EditorInfo.IME_ACTION_DONE) {
                 lifecycleScope.launch {
+                    if (parentActivity?.isNetworkAvailable() == true)
                     moviesViewModel.getSearchMovie(searchedText, POPULAR_MOVIES)
                 }
                 return@setOnEditorActionListener true
@@ -68,15 +76,10 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
         }
     }
 
-    override fun executeApiCall() {
-        if (!moviesViewModel.isApiCallExecuted(POPULAR_MOVIES))
-            lifecycleScope.launch { moviesViewModel.getPopularMovies() }
-    }
-
     override fun setObserver() {
         moviesViewModel.popularMovies.customCollector(
             this@MovieListFragment,
-            onLoading = { if (it) parentActivity?.showLineScaleLoading() else parentActivity?.hideLineScaleLoading() },
+            onLoading = ::onLoading,
             onSuccess = { lifecycleScope.launch { movieListAdapter.submitData(it) } },
             onError = ::onError
         )
@@ -128,11 +131,11 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
         movieListAdapter.addLoadStateListener { loadState ->
             if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
                 if (isFirstLoad) {
-                    parentActivity?.showLineScaleLoading()
+                    onLoading(true)
                     isFirstLoad = false
                 }
             } else {
-                parentActivity?.hideLineScaleLoading()
+                onLoading(false)
                 val errorState = when {
                     loadState.append is LoadState.Error -> loadState.append as LoadState.Error
                     loadState.prepend is LoadState.Error -> loadState.prepend as LoadState.Error
@@ -141,7 +144,6 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
                 }
                 errorState?.let {
                     onError(Throwable(it.error.message), true)
-                    moviesViewModel.apiCallExecuted[POPULAR_MOVIES] = false
                 }
             }
         }

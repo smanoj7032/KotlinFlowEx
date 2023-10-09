@@ -36,9 +36,6 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
         onCreateView(view, savedInstanceState)
         setObserver()
         initViews()
-        if ( parentActivity?.isNetworkAvailable() == true) {
-            executeApiCall()
-        }
         view.findViewById<ErrorView>(R.id.error_view)?.onRetry = onRetry
     }
 
@@ -69,7 +66,6 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
     }
 
     protected abstract fun onCreateView(view: View, saveInstanceState: Bundle?)
-    protected abstract fun executeApiCall()
     protected abstract fun setObserver()
     protected abstract fun initViews()
     protected abstract fun getLayoutResource(): Int
@@ -101,9 +97,5 @@ abstract class BaseFragment<Binding : ViewDataBinding> : Fragment(), NetworkChan
         e.printStackTrace()
     }
 
-    override fun onNetworkChanged(status: Boolean?) {
-        if (status == true ) {
-            executeApiCall()
-        }
-    }
+    override fun onNetworkChanged(status: Boolean?) {}
 }

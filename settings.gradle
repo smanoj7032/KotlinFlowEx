@@ -6,7 +6,7 @@ pluginManagement {
     }
 }
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+ //   repositoriesMode.set(RepositoriesModze.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
@@ -14,4 +14,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "KoltinFlowEx"
 include ':app'
-include ':shimmer'

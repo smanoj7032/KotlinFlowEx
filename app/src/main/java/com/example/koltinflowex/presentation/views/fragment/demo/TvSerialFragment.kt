@@ -35,13 +35,13 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
 
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
+        lifecycleScope.launch {
+            if (parentActivity?.isInterNetAvailable == true)
+                moviesViewModel.getUpcomingMoviesList()
+        }
         setAdapter()
     }
 
-    override fun executeApiCall() {
-        if (!moviesViewModel.isApiCallExecuted(UPCOMING_MOVIES))
-            lifecycleScope.launch { moviesViewModel.getUpcomingMoviesList() }
-    }
 
     override fun initViews() {
         val searchBar = parentActivity?.findViewById<EditText>(R.id.search_edit_text)
@@ -62,8 +62,7 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
             if (searchedText != "" && p1 == EditorInfo.IME_ACTION_DONE) {
                 lifecycleScope.launch {
                     moviesViewModel.getSearchMovie(
-                        searchedText,
-                        UPCOMING_MOVIES
+                        searchedText, UPCOMING_MOVIES
                     )
                 }
                 return@setOnEditorActionListener true
@@ -80,7 +79,7 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
     override fun setObserver() {
         moviesViewModel.upComingMovies.customCollector(
             this@TvSerialFragment,
-            onLoading = { if (it) parentActivity?.showLineScaleLoading() else parentActivity?.hideLineScaleLoading() },
+            onLoading = ::onLoading,
             onSuccess = { lifecycleScope.launch { adapter.submitData(it) } },
             onError = ::onError
         )
@@ -93,8 +92,7 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
             override fun onBind(binding: ItemPhotosListBinding, item: Result, position: Int) {
                 super.onBind(binding, item, position)
                 parentActivity?.loadImage(
-                    POSTER_BASE_URL + item.poster_path,
-                    binding.ivPhoto
+                    POSTER_BASE_URL + item.poster_path, binding.ivPhoto
                 )
                 binding.tvMovieName.text = item.title
                 binding.cvImage.setOnClickListener {
@@ -126,11 +124,11 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
         adapter.addLoadStateListener { loadState ->
             if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
                 if (isFirstLoad) {
-                  parentActivity?.showLineScaleLoading()
+                    onLoading(true)
                     isFirstLoad = false
                 }
             } else {
-         parentActivity?.hideLineScaleLoading()
+                onLoading(false)
                 val errorState = when {
                     loadState.append is LoadState.Error -> loadState.append as LoadState.Error
                     loadState.prepend is LoadState.Error -> loadState.prepend as LoadState.Error
@@ -138,7 +136,6 @@ class TvSerialFragment : BaseFragment<TvSerialFragmentBinding>() {
                     else -> null
                 }
                 errorState?.let {
-                    moviesViewModel.apiCallExecuted[UPCOMING_MOVIES] = false
                     onError(Throwable(it.error.message), true)
                 }
             }

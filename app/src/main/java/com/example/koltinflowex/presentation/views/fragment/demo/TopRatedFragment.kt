@@ -34,22 +34,18 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
     var isFirstLoad = true
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
+        lifecycleScope.launch {
+            if (parentActivity?.isInterNetAvailable == true)
+                moviesViewModel.getTopRatedMoviesList()
+        }
         setAdapter()
-    }
-
-
-    override fun executeApiCall() {
-        if (!moviesViewModel.isApiCallExecuted(TOP_RATED_MOVIES)) lifecycleScope.launch { moviesViewModel.getTopRatedMoviesList() }
     }
 
     override fun setObserver() {
         moviesViewModel.topRatedMovies.customCollector(
-            this@TopRatedFragment,
-            onLoading = { if (it) parentActivity?.showLineScaleLoading() else parentActivity?.hideLineScaleLoading() },
-            onSuccess = {
+            this@TopRatedFragment, onLoading = ::onLoading, onSuccess = {
                 lifecycleScope.launch { topRatedMoviesAdapter.submitData(it) }
-            },
-            onError = ::onError
+            }, onError = ::onError
         )
     }
 
@@ -126,11 +122,11 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
         topRatedMoviesAdapter.addLoadStateListener { loadState ->
             if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
                 if (isFirstLoad) {
-                    parentActivity?.showLineScaleLoading()
+                    onLoading(true)
                     isFirstLoad = false
                 }
             } else {
-                parentActivity?.hideLineScaleLoading()
+                onLoading(false)
                 val errorState = when {
                     loadState.append is LoadState.Error -> loadState.append as LoadState.Error
                     loadState.prepend is LoadState.Error -> loadState.prepend as LoadState.Error
@@ -139,7 +135,6 @@ class TopRatedFragment : BaseFragment<TopRatedFragmentBinding>() {
                 }
                 errorState?.let {
                     onError(Throwable(it.error.message), true)
-                    moviesViewModel.apiCallExecuted[TOP_RATED_MOVIES] = false
                 }
             }
         }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -9,13 +10,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <com.google.android.exoplayer2.ui.StyledPlayerView
+            android:id="@+id/player"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:textSize="50sp"
-            android:textStyle="bold"
-            android:text="DEMO 3"/>
+            android:foreground="@drawable/custom_ripple"
+            android:background="@drawable/custom_ripple"
+            app:show_buffering="always"
+            app:use_controller="false" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

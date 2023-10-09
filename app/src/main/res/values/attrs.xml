@@ -8,4 +8,41 @@
         <attr name="indicatorName" format="string"/>
         <attr name="indicatorColor" format="color"/>
     </declare-styleable>
+
+
+    <declare-styleable name="DuoDrawerLayout">
+        <attr name="menu" format="reference" />
+        <attr name="content" format="reference" />
+        <attr name="contentScaleClosed" format="float" />
+        <attr name="clickToCloseScale" format="float" />
+        <attr name="contentScaleOpen" format="float" />
+        <attr name="menuScaleClosed" format="float" />
+        <attr name="menuScaleOpen" format="float" />
+        <attr name="menuAlphaClosed" format="float" />
+        <attr name="menuAlphaOpen" format="float" />
+        <attr name="marginFactor" format="float" />
+        <attr name="colorPrimary" format="color" />
+        <attr name="white" format="color" />
+        <attr name="dim_green" format="color" />
+        <attr name="homeAsUpIndicator" format="reference" />
+
+    </declare-styleable>
+    <declare-styleable name="DuoMenuView">
+        <attr name="header" format="reference" />
+        <attr name="footer" format="reference" />
+        <attr name="background" format="reference" />
+    </declare-styleable>
+    <declare-styleable name="MeowBottomNavigation">
+        <attr name="mbn_defaultIconColor" format="color" />
+        <attr name="mbn_selectedIconColor" format="color" />
+        <attr name="mbn_backgroundBottomColor" format="color" />
+        <attr name="mbn_circleColor" format="color" />
+        <attr name="mbn_countTextColor" format="color" />
+        <attr name="mbn_countBackgroundColor" format="color" />
+        <attr name="mbn_countTypeface" format="string" />
+        <attr name="mbn_rippleColor" format="color" />
+        <attr name="mbn_shadowColor" format="color" />
+        <attr name="mbn_hasAnimation" format="boolean" />
+    </declare-styleable>
+
 </resources>

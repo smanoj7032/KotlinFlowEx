@@ -3,154 +3,374 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_lay"
+    <com.example.koltinflowex.presentation.common.fancydrawer.views.DuoDrawerLayout
+        android:id="@+id/lay_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#CDCDCD"
-        tools:context=".presentation.MainActivity">
+        android:background="@color/Yellow">
 
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/Yellow"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="@style/AppTheme"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/img_btn_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:background="@color/Yellow"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:padding="15dp"
-                android:src="@drawable/ic_back"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/tv_toolbar_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="20dp"
-                android:text="@string/popular_movies"
-                android:textColor="@color/black"
-                android:textSize="16sp"
-                android:textStyle="bold" />
-
-            <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/imd_btn_search"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:background="@color/Yellow"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground"
-                android:padding="15dp"
-                android:src="@drawable/ic_search"
-                android:visibility="gone" />
-
-
-        </androidx.appcompat.widget.Toolbar>
-
-
-        <ProgressBar
-            android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.example.koltinflowex.presentation.common.compooundviews.ErrorView
-            android:id="@+id/error_view"
+        <com.example.koltinflowex.presentation.common.fancydrawer.views.DuoMenuView
+            android:id="@+id/drawerMenu"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
-        <androidx.appcompat.widget.AppCompatEditText
-            android:id="@+id/search_edit_text"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:background="@drawable/rectangle_shape"
-            android:elevation="50dp"
-            android:hint="@string/search_movies"
-            android:imeOptions="actionDone"
-            android:padding="10dp"
-            android:singleLine="true"
-            android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/iv_clear_search"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/iv_clear_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="10dp"
-            android:layout_marginEnd="10dp"
-            android:src="@drawable/ic_clear"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@+id/search_edit_text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/search_edit_text"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
-
-
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fcv_main"
-            android:name="androidx.navigation.fragment.NavHostFragment"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:defaultNavHost="true"
-            app:layout_constraintBottom_toTopOf="@+id/bnv_view"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/search_edit_text"
-            app:navGraph="@navigation/nav_graph"
-            tools:layout="@layout/movie_list_fragment" />
-
-
-        <com.example.koltinflowex.presentation.common.multifab.MultiFloatingActionButton
-            android:id="@+id/multiFab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/bnv_view"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bnv_view"
-            android:layout_width="match_parent"
-            android:layout_height="65dp"
+            android:layout_alignParentStart="true"
             android:background="@color/Yellow"
-            app:itemIconTint="@color/black"
-            app:itemTextColor="@color/black"
-            app:labelVisibilityMode="selected"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:menu="@menu/menu" />
+            android:tag="@string/tag_menu">
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/iv_profile"
+                    android:layout_width="34dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="60dp"
+                    android:layout_marginRight="20dp"
+                    android:adjustViewBounds="true"
+                    android:rotation="60"
+                    android:src="@drawable/ic_grid" />
+
+                <TextView
+                    android:id="@+id/hello"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginRight="20dp"
+                    android:text="Hello, Manoj"
+                    android:textColor="@color/white"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="170dp"
+                    android:background="@color/white" />
+
+                <TextView
+                    android:id="@+id/home"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginRight="50dp"
+                    android:text="Home"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/profile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginRight="50dp"
+                    android:text="Profile"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/products"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginRight="50dp"
+                    android:text="Products"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/balance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginRight="50dp"
+                    android:text="Balance"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/cart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginRight="50dp"
+                    android:text="Cart"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/fav"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginRight="50dp"
+                    android:text="Favorites"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="150dp"
+                    android:layout_marginEnd="170dp" />
+
+                <TextView
+                    android:id="@+id/logout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginRight="20dp"
+                    android:text="Logout"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </com.example.koltinflowex.presentation.common.fancydrawer.views.DuoMenuView>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_lay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#CDCDCD"
+            android:tag="@string/tag_content"
+            tools:context=".presentation.MainActivity">
+
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/Yellow"
+                android:minHeight="?attr/actionBarSize"
+                android:theme="@style/AppTheme"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/img_btn_back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:background="@color/Yellow"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:padding="15dp"
+                    android:src="@drawable/ic_back"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tv_toolbar_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginHorizontal="20dp"
+                    android:text="@string/popular_movies"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/imd_btn_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:background="@color/Yellow"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:padding="15dp"
+                    android:src="@drawable/ic_search"
+                    android:visibility="gone" />
+
+
+            </androidx.appcompat.widget.Toolbar>
+
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.example.koltinflowex.presentation.common.compooundviews.ErrorView
+                android:id="@+id/error_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/search_edit_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/rectangle_shape"
+                android:elevation="50dp"
+                android:hint="@string/search_movies"
+                android:imeOptions="actionDone"
+                android:padding="10dp"
+                android:singleLine="true"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@+id/iv_clear_search"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_clear_search"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/ic_clear"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@+id/search_edit_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/search_edit_text"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fcv_main"
+                android:name="androidx.navigation.fragment.NavHostFragment"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:defaultNavHost="true"
+                app:layout_constraintBottom_toTopOf="@+id/bnv_view"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/search_edit_text"
+                app:navGraph="@navigation/nav_graph"
+                tools:layout="@layout/movie_list_fragment" />
+
+
+            <com.example.koltinflowex.presentation.common.multifab.FloatingActionMenu
+                android:id="@+id/floating_action_menu"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="10dp"
+                app:layout_constraintBottom_toTopOf="@+id/bnv_view"
+                app:menu_animationDelayPerItem="55"
+                app:menu_backgroundColor="@android:color/transparent"
+                app:menu_buttonSpacing="0dp"
+                app:menu_colorNormal="#FFCC2A"
+                app:menu_colorPressed="#FFCC2A"
+                app:menu_colorRipple="#99d4d4d4"
+                app:menu_fab_size="normal"
+                app:menu_icon="@drawable/fab_add"
+                app:menu_labels_colorNormal="#333"
+                app:menu_labels_colorPressed="#444"
+                app:menu_labels_colorRipple="#66efecec"
+                app:menu_labels_cornerRadius="3dp"
+                app:menu_labels_ellipsize="none"
+                app:menu_labels_hideAnimation="@anim/fab_slide_out_to_right"
+                app:menu_labels_margin="0dp"
+                app:menu_labels_maxLines="-1"
+                app:menu_labels_padding="8dp"
+                app:menu_labels_position="left"
+                app:menu_labels_showAnimation="@anim/fab_slide_in_from_right"
+                app:menu_labels_showShadow="false"
+                app:menu_labels_singleLine="false"
+                app:menu_labels_textColor="#f2f1f1"
+                app:menu_labels_textSize="15sp"
+                app:menu_openDirection="up">
+
+                <com.example.koltinflowex.presentation.common.multifab.FloatingActionButton
+                    android:id="@+id/fab_add_post_1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_floating_add"
+                    app:fab_colorRipple="#99d4d4d4"
+                    app:fab_size="mini"
+                    app:menu_labels_colorNormal="@color/Yellow"
+                    app:menu_labels_colorPressed="@color/Yellow"
+                    app:menu_labels_colorRipple="@color/Yellow"
+                    app:rippleColor="#99d4d4d4" />
+
+                <com.example.koltinflowex.presentation.common.multifab.FloatingActionButton
+                    android:id="@+id/fab_add_post_2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_floating_add"
+                    app:fab_colorRipple="#99d4d4d4"
+                    app:fab_size="mini"
+                    app:menu_labels_colorNormal="@color/Yellow"
+                    app:menu_labels_colorPressed="@color/Yellow"
+                    app:menu_labels_colorRipple="@color/Yellow"
+                    app:rippleColor="#99d4d4d4" />
+
+                <com.example.koltinflowex.presentation.common.multifab.FloatingActionButton
+                    android:id="@+id/fab_add_post_3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_floating_add"
+                    app:fab_colorRipple="#99d4d4d4"
+                    app:fab_size="mini"
+                    app:menu_labels_colorNormal="@color/Yellow"
+                    app:menu_labels_colorPressed="@color/Yellow"
+                    app:menu_labels_colorRipple="@color/Yellow"
+                    app:rippleColor="#99d4d4d4" />
+
+            </com.example.koltinflowex.presentation.common.multifab.FloatingActionMenu>
+
+
+            <com.example.koltinflowex.presentation.common.bottomnavigation.MeowBottomNavigation
+                android:id="@+id/bnv_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#00FFC107"
+                android:layout_gravity="bottom"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:mbn_backgroundBottomColor="@color/Yellow"
+                app:mbn_circleColor="@color/Yellow"
+                app:mbn_countBackgroundColor="#ff6f00"
+                app:mbn_countTextColor="#ffffff"
+                app:mbn_defaultIconColor="#3c415e"
+                app:mbn_hasAnimation="true"
+                app:mbn_rippleColor="#2f424242"
+                app:mbn_selectedIconColor="#3c415e"
+                app:mbn_shadowColor="#1f212121" />
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@+id/bnv_view"
+                app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.example.koltinflowex.presentation.common.fancydrawer.views.DuoDrawerLayout>
 </layout>
 

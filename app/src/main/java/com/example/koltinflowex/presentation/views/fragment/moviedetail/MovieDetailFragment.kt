@@ -20,15 +20,13 @@ class MovieDetailFragment : BaseFragment<MovieDetailFragmentBinding>() {
     var movieId = 0
 
 
-    override fun onCreateView(view: View, saveInstanceState: Bundle?) {}
-
-
-    override fun executeApiCall() {
+    override fun onCreateView(view: View, saveInstanceState: Bundle?) {
         movieId = arguments?.getInt("movieId")!!
         if (parentActivity?.isNetworkAvailable() == true) {
             viewModel.getMovieDetail(movieId)
         }
     }
+
 
     override fun initViews() {
 
@@ -40,7 +38,7 @@ class MovieDetailFragment : BaseFragment<MovieDetailFragmentBinding>() {
 
     override fun setObserver() {
         viewModel.movieDetail.customCollector(this,
-            onLoading = { if (it) parentActivity?.showLineScaleLoading() else parentActivity?.hideLineScaleLoading() },
+            onLoading = ::onLoading,
             onError = ::onError,
             onSuccess = { setData(it) })
     }

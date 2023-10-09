@@ -30,4 +30,5 @@
         <item name="maxHeight">24dip</item>
         <item name="indicatorName">BallPulseIndicator</item>
     </style>
+
 </resources>

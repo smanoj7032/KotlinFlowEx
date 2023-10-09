@@ -1,10 +1,12 @@
 package com.example.koltinflowex.presentation.views.fragment.movielist
 
+import android.content.Context
+import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.koltinflowex.common.network.api.POPULAR_MOVIES
-import com.example.koltinflowex.common.network.api.SEARCH_MOVIES
 import com.example.koltinflowex.common.network.api.TOP_RATED_MOVIES
 import com.example.koltinflowex.common.network.api.UPCOMING_MOVIES
 import com.example.koltinflowex.common.network.helper.State
@@ -20,7 +22,7 @@ import javax.inject.Inject
 class MoviesViewModel @Inject constructor(
     private val baseRepo: BaseRepo
 ) : BaseViewModel() {
-
+    val videoData = MutableLiveData<ArrayList<String>>()
     val popularMovies = MutableStateFlow<State<PagingData<Result>>>(State.loading())
     val upComingMovies = MutableStateFlow<State<PagingData<Result>>>(State.loading())
     val topRatedMovies = MutableStateFlow<State<PagingData<Result>>>(State.loading())
@@ -30,7 +32,6 @@ class MoviesViewModel @Inject constructor(
         viewModelScope.launch {
             baseRepo.getPopularMovies().cachedIn(viewModelScope).collect {
                 popularMovies.value = State.success(it)
-                apiCallExecuted[POPULAR_MOVIES] = true
             }
         }
     }
@@ -39,7 +40,6 @@ class MoviesViewModel @Inject constructor(
         viewModelScope.launch {
             baseRepo.getTopRatedMoviesList().cachedIn(viewModelScope).collect {
                 topRatedMovies.value = State.success(it)
-                apiCallExecuted[TOP_RATED_MOVIES] = true
             }
         }
 
@@ -49,7 +49,6 @@ class MoviesViewModel @Inject constructor(
         viewModelScope.launch {
             baseRepo.getUpcomingMoviesList().cachedIn(viewModelScope).collect {
                 upComingMovies.value = State.success(it)
-                apiCallExecuted[UPCOMING_MOVIES] = true
             }
         }
 
@@ -63,7 +62,6 @@ class MoviesViewModel @Inject constructor(
                     baseRepo.getSearchMovie(viewModelScope, search).cachedIn(viewModelScope)
                         .collect {
                             popularMovies.value = State.success(it)
-                            apiCallExecuted[SEARCH_MOVIES] = true
                         }
                 }
             }
@@ -73,7 +71,6 @@ class MoviesViewModel @Inject constructor(
                     baseRepo.getSearchMovie(viewModelScope, search).cachedIn(viewModelScope)
                         .collect {
                             topRatedMovies.value = State.success(it)
-                            apiCallExecuted[SEARCH_MOVIES] = true
                         }
                 }
             }
@@ -83,12 +80,10 @@ class MoviesViewModel @Inject constructor(
                     baseRepo.getSearchMovie(viewModelScope, search).cachedIn(viewModelScope)
                         .collect {
                             upComingMovies.value = State.success(it)
-                            apiCallExecuted[SEARCH_MOVIES] = true
                         }
                 }
             }
         }
-
     }
 
 }

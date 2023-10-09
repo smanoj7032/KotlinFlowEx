@@ -29,7 +29,7 @@ class BaseRepoImpl @Inject constructor(private val baseApi: BaseApi) : BaseRepo 
         scope: CoroutineScope,
         search: String
     ): Flow<PagingData<Result>> {
-        val pagingSource = Pagination(baseApi, "search",search)
+        val pagingSource = Pagination(baseApi, "search", search)
         return fetchPagingData { pagingSource }
     }
 
