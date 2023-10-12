@@ -1,86 +1,55 @@
 package com.example.koltinflowex.presentation.views.fragment.movielist
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
-import android.view.inputmethod.EditorInfo
-import android.widget.EditText
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.paging.LoadState
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.koltinflowex.R
-import com.example.koltinflowex.common.network.api.POPULAR_MOVIES
 import com.example.koltinflowex.common.network.api.POSTER_BASE_URL
 import com.example.koltinflowex.data.model.Result
 import com.example.koltinflowex.databinding.ItemPhotosListBinding
 import com.example.koltinflowex.databinding.MovieListFragmentBinding
-import com.example.koltinflowex.presentation.common.adapter.LoadMoreAdapter
-import com.example.koltinflowex.presentation.common.adapter.RVAdapterWithPaging
+import com.example.koltinflowex.presentation.common.adapter.RVAdapter
 import com.example.koltinflowex.presentation.common.base.BaseFragment
+import com.example.koltinflowex.presentation.common.base.RecyclerViewLoadMoreListener
 import com.example.koltinflowex.presentation.common.customCollector
-import com.example.koltinflowex.presentation.common.isNetworkAvailable
 import com.example.koltinflowex.presentation.common.loadImage
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
-class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
+class MovieListFragment : BaseFragment<MovieListFragmentBinding>(),
+    SwipeRefreshLayout.OnRefreshListener {
+    private var page: Int = 1
     private val moviesViewModel: MoviesViewModel by viewModels()
-    private lateinit var movieListAdapter: RVAdapterWithPaging<Result, ItemPhotosListBinding>
-    var searchedText = ""
-    var isFirstLoad = true
+    private lateinit var movieListAdapter: RVAdapter<Result, ItemPhotosListBinding>
+    private lateinit var recyclerViewLoadMoreListener: RecyclerViewLoadMoreListener
 
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
-        lifecycleScope.launch {
-            if (parentActivity?.isNetworkAvailable() == true)
-                moviesViewModel.getPopularMovies()
-        }
         setAdapter()
+        setRecyclerViewLoadMore()
     }
 
     override fun initViews() {
-        val searchBar = parentActivity?.findViewById<EditText>(R.id.search_edit_text)
-        searchBar?.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                searchedText = p0.toString()
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-                if (searchedText == "") {
-                    if (parentActivity?.isNetworkAvailable() == true) {
-                        lifecycleScope.launch {
-                            if (parentActivity?.isNetworkAvailable() == true)
-                                moviesViewModel.getPopularMovies()
-                        }
-                    } else {
-                        onError(Throwable("check internet connection"), true)
-                    }
-                }
-            }
-        })
-        searchBar?.setOnEditorActionListener { p0, p1, p2 ->
-            if (searchedText != "" && p1 == EditorInfo.IME_ACTION_DONE) {
-                lifecycleScope.launch {
-                    if (parentActivity?.isNetworkAvailable() == true)
-                    moviesViewModel.getSearchMovie(searchedText, POPULAR_MOVIES)
-                }
-                return@setOnEditorActionListener true
-            } else {
-                return@setOnEditorActionListener false
-            }
-        }
+        reloadPage()
     }
 
     override fun setObserver() {
         moviesViewModel.popularMovies.customCollector(
             this@MovieListFragment,
             onLoading = ::onLoading,
-            onSuccess = { lifecycleScope.launch { movieListAdapter.submitData(it) } },
+            onSuccess = {
+                if (it.results != null) {
+                    movieListAdapter.addToList(it.results)
+                    recyclerViewLoadMoreListener.updateStateAfterGetData(it.total_pages)
+                }
+                recyclerViewLoadMoreListener.hideRecyclerViewLoading()
+                movieListAdapter.notifyDataSetChanged()
+
+            },
             onError = ::onError
         )
     }
@@ -89,20 +58,35 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
         return R.layout.movie_list_fragment
     }
 
+    private fun createRecyclerViewLoadMoreListener(): RecyclerViewLoadMoreListener {
+        return object :
+            RecyclerViewLoadMoreListener(mainbinding.rvComments.layoutManager as GridLayoutManager) {
+            override fun loadMoreData(currentPage: Int) {
+                page = currentPage
+                moviesViewModel.getPopularMovies(page)
+            }
+        }
+    }
+
+    private fun setRecyclerViewLoadMore() {
+        recyclerViewLoadMoreListener = createRecyclerViewLoadMoreListener()
+        mainbinding.rvComments.addOnScrollListener(recyclerViewLoadMoreListener)
+    }
+
     private fun setAdapter() {
-        movieListAdapter = object : RVAdapterWithPaging<Result, ItemPhotosListBinding>(
-            DIFF_CALLBACK, R.layout.item_photos_list, 1
+        movieListAdapter = object : RVAdapter<Result, ItemPhotosListBinding>(
+            R.layout.item_photos_list, 1
         ) {
-            override fun onBind(binding: ItemPhotosListBinding, item: Result, position: Int) {
-                super.onBind(binding, item, position)
+            override fun onBind(binding: ItemPhotosListBinding, bean: Result, position: Int) {
+                super.onBind(binding, bean, position)
                 parentActivity?.loadImage(
-                    POSTER_BASE_URL + item.poster_path, binding.ivPhoto
+                    POSTER_BASE_URL + bean.poster_path, binding.ivPhoto
                 )
-                binding.tvMovieName.text = item.title
+                binding.tvMovieName.text = bean.title
 
                 binding.cvImage.setOnClickListener {
                     val bundle = Bundle()
-                    bundle.putInt("movieId", item.id!!)
+                    bundle.putInt("movieId", bean.id!!)
                     binding.cvImage.navigateWithId(
                         R.id.movieListToMovieDetail,
                         parentActivity?.navController?.currentDestination?.id,
@@ -112,48 +96,34 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>() {
             }
 
         }
-        val layoutManager = GridLayoutManager(parentActivity?.applicationContext, 3)
-        val footerAdapter = LoadMoreAdapter { movieListAdapter.retry() }
-        val headerAdapter = LoadMoreAdapter { movieListAdapter.retry() }
-        layoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(position: Int): Int {
-                return if ((position == movieListAdapter.itemCount) && footerAdapter.itemCount > 0) 3
-                else if (movieListAdapter.itemCount == 0 && headerAdapter.itemCount > 0) 3
-                else 1
-            }
-        }
-        mainbinding.rvComments.layoutManager = layoutManager
+        mainbinding.rvComments.itemAnimator = MyRecyclerViewAnimator()
+
+        mainbinding.rvComments.layoutManager =
+            GridLayoutManager(parentActivity?.applicationContext, 3)
         mainbinding.rvComments.adapter = movieListAdapter
 
-        mainbinding.rvComments.adapter = movieListAdapter.withLoadStateHeaderAndFooter(
-            header = headerAdapter, footer = footerAdapter
-        )
-        movieListAdapter.addLoadStateListener { loadState ->
-            if (loadState.refresh is LoadState.Loading || loadState.append is LoadState.Loading) {
-                if (isFirstLoad) {
-                    onLoading(true)
-                    isFirstLoad = false
-                }
-            } else {
-                onLoading(false)
-                val errorState = when {
-                    loadState.append is LoadState.Error -> loadState.append as LoadState.Error
-                    loadState.prepend is LoadState.Error -> loadState.prepend as LoadState.Error
-                    loadState.refresh is LoadState.Error -> loadState.refresh as LoadState.Error
-                    else -> null
-                }
-                errorState?.let {
-                    onError(Throwable(it.error.message), true)
-                }
-            }
-        }
     }
 
+    private fun reloadPage() {
+        recyclerViewLoadMoreListener.resetState()
+        page=1
+        moviesViewModel.getPopularMovies(1)
+    }
+
+    override fun onRefresh() {
+        reloadPage()
+    }
 
     override fun onNetworkChanged(status: Boolean?) {
         super.onNetworkChanged(status)
-        if (status == true) {
-            movieListAdapter.retry()
+        if (status==true){
+            moviesViewModel.getPopularMovies(page)
+        }
+    }
+    class MyRecyclerViewAnimator : DefaultItemAnimator() {
+        override fun animateAdd(holder: RecyclerView.ViewHolder): Boolean {
+            dispatchAddFinished(holder) // this is what bypasses the animation
+            return true
         }
     }
 }

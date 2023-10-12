@@ -4,6 +4,7 @@ import androidx.paging.PagingData
 import com.example.koltinflowex.common.network.api.BaseApi
 import com.example.koltinflowex.common.network.helper.State
 import com.example.koltinflowex.data.model.MovieDetail
+import com.example.koltinflowex.data.model.MoviesListResponse
 import com.example.koltinflowex.data.model.Result
 import com.example.koltinflowex.domain.repository.BaseRepo
 import com.example.koltinflowex.presentation.common.executeApiCall
@@ -37,8 +38,7 @@ class BaseRepoImpl @Inject constructor(private val baseApi: BaseApi) : BaseRepo 
         return executeApiCall { baseApi.getMovieDetails(id) }
     }
 
-    override suspend fun getPopularMovies(): Flow<PagingData<Result>> {
-        val pagination = Pagination(baseApi, "popular")
-        return fetchPagingData { pagination }
+    override suspend fun getPopularMovies(page: Int): Flow<State<MoviesListResponse>> {
+        return executeApiCall { baseApi.getPopularMoviesList(page, false) }
     }
 }

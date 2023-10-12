@@ -6,45 +6,50 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <ScrollView
         android:layout_width="match_parent"
+        android:fillViewport="true"
+        android:fitsSystemWindows="true"
         android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/et_search"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/rectangle_shape"
-            android:hint="@string/search_movies"
-            android:imeOptions="actionDone"
-            android:padding="10dp"
-            android:singleLine="true"
-            android:textSize="14sp"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvComments"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/et_search" />
+            <EditText
+                android:id="@+id/et_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rectangle_shape"
+                android:hint="@string/search_movies"
+                android:imeOptions="actionDone"
+                android:padding="10dp"
+                android:singleLine="true"
+                android:textSize="14sp"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <com.example.koltinflowex.presentation.common.loader.AVLoadingIndicatorView
-            android:id="@+id/progress_bar"
-            style="@style/AVLoadingIndicatorView"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_centerInParent="true"
-            app:indicatorColor="@color/red"
-            app:indicatorName="BallSpinFadeLoaderIndicator"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvComments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/et_search" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <com.example.koltinflowex.presentation.common.loader.AVLoadingIndicatorView
+                android:id="@+id/progress_bar"
+                style="@style/AVLoadingIndicatorView"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_centerInParent="true"
+                app:indicatorColor="@color/red"
+                app:indicatorName="BallSpinFadeLoaderIndicator"
+                app:layout_constraintEnd_toEndOf="@+id/rvComments"
+                app:layout_constraintStart_toStartOf="@+id/rvComments"
+                app:layout_constraintTop_toBottomOf="@+id/rvComments" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
 </layout>

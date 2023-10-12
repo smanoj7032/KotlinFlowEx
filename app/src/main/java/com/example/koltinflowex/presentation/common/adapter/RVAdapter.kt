@@ -4,7 +4,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
+
 
 open class RVAdapter<M, B : ViewDataBinding>(
     private val layoutResId: Int,
@@ -63,5 +65,9 @@ open class RVAdapter<M, B : ViewDataBinding>(
 
     open fun onBind(binding: B, bean: M, position: Int) {
         binding.setVariable(modelVarId, bean)
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return position
     }
 }
