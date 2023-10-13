@@ -39,6 +39,7 @@
                 android:scaleType="fitXY"
                 android:src="@drawable/placeholder" />
 
+
         </androidx.cardview.widget.CardView>
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -55,11 +56,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cvImage" />
 
-        <ProgressBar
+        <com.example.koltinflowex.presentation.common.loader.AVLoadingIndicatorView
             android:id="@+id/progressBar"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            style="@style/AVLoadingIndicatorView"
+            android:layout_width="60dp"
             android:visibility="gone"
+            android:layout_height="60dp"
+            android:layout_centerInParent="true"
+            app:indicatorColor="@color/red"
+            app:indicatorName="BallSpinFadeLoaderIndicator"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

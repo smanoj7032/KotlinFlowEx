@@ -2,6 +2,7 @@ package com.example.koltinflowex.presentation.common
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -11,6 +12,7 @@ import android.media.ThumbnailUtils
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
+import android.provider.Settings
 import android.text.InputFilter
 import android.text.InputType
 import android.text.Spannable
@@ -19,11 +21,14 @@ import android.util.Log
 import android.view.ActionMode
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -31,6 +36,12 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.koltinflowex.R
+import com.example.koltinflowex.presentation.common.dexter.Dexter
+import com.example.koltinflowex.presentation.common.dexter.MultiplePermissionsReport
+import com.example.koltinflowex.presentation.common.dexter.PermissionToken
+import com.example.koltinflowex.presentation.common.dexter.listener.PermissionRequest
+import com.example.koltinflowex.presentation.common.dexter.listener.multi.MultiplePermissionsListener
+import com.example.koltinflowex.presentation.common.utils.AsteriskPassword
 import javax.annotation.Nullable
 
 
@@ -213,6 +224,34 @@ fun TextView.setSelectableTextColor2() {
     }
 }
 
+fun EditText.addPasswordToggle(view: View) {
+    view.setOnClickListener {
+        if (this.tag == null) {
+            inputType = InputType.TYPE_CLASS_TEXT
+            this.tag = "show"
+            this.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                null, null, ContextCompat.getDrawable(this.context, R.drawable.password_show), null
+            )
+            this.transformationMethod = null
+        } else {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            this.tag = null
+            this.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                null, null, ContextCompat.getDrawable(this.context, R.drawable.password_hide), null
+            )
+            this.transformationMethod = AsteriskPassword()
+        }
+        this.setSelection(this.text.length)
+    }
+    inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+    this.tag = null
+    this.setCompoundDrawablesRelativeWithIntrinsicBounds(
+        null, null, ContextCompat.getDrawable(this.context, R.drawable.password_hide), null
+    )
+    this.transformationMethod = AsteriskPassword()
+    this.setSelection(this.text.length)
+}
+
 fun getVideoThumbnail(videoUri: Uri): Bitmap? {
     val thumbnailSize = ThumbnailUtils.OPTIONS_RECYCLE_INPUT
     val bitmap = ThumbnailUtils.createVideoThumbnail(videoUri.path!!, thumbnailSize)
@@ -221,4 +260,63 @@ fun getVideoThumbnail(videoUri: Uri): Bitmap? {
     } else {
         null
     }
+}
+
+
+fun AppCompatActivity.requestDexterPermissions(
+    vararg permissions: String,
+    onPermissionResult: ((Boolean) -> Unit)? = null
+) {
+    Dexter.withContext(this)
+        .withPermissions(*permissions)
+        .withListener(object : MultiplePermissionsListener {
+            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                report?.let {
+                    if (it.areAllPermissionsGranted()) {
+                        onPermissionResult?.invoke(true)
+                    } else {
+                        if (it.isAnyPermissionPermanentlyDenied) {
+                            // At least one permission is permanently denied
+                            try {
+                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                val uri = Uri.fromParts("package", packageName, null)
+                                intent.data = uri
+                                startActivity(intent)
+                            } catch (e: ActivityNotFoundException) {
+                                e.printStackTrace()
+                            }
+                        } else {
+                            // Ask for permissions again
+                            this@requestDexterPermissions.requestDexterPermissions(*permissions)
+                        }
+                    }
+                }
+            }
+
+            override fun onPermissionRationaleShouldBeShown(
+                permissions: MutableList<PermissionRequest>?,
+                token: PermissionToken?
+            ) {
+                token?.continuePermissionRequest()
+            }
+        })
+        .check()
+}
+
+
+
+private fun AppCompatActivity.showRationaleDialogForPermissions() {
+    AlertDialog.Builder(this)
+        .setMessage("You have not granted all the required permissions. Please grant all permissions to use this feature.")
+        .setPositiveButton("GO TO SETTINGS") { _, _ ->
+            try {
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri = Uri.fromParts("package", packageName, null)
+                intent.data = uri
+                startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                e.printStackTrace()
+            }
+        }
+        .show()
 }

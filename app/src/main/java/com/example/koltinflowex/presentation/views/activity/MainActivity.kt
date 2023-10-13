@@ -1,5 +1,6 @@
 package com.example.koltinflowex.presentation.views.activity
 
+import android.Manifest
 import android.content.res.Resources
 import android.view.View
 import android.view.animation.Animation
@@ -7,7 +8,6 @@ import android.view.animation.AnimationUtils
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.navigation.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.example.koltinflowex.R
 import com.example.koltinflowex.databinding.ActivityMainBinding
@@ -16,6 +16,7 @@ import com.example.koltinflowex.presentation.common.base.BaseViewModel
 import com.example.koltinflowex.presentation.common.bottomnavigation.MeowBottomNavigation
 import com.example.koltinflowex.presentation.common.fancydrawer.widgets.DuoDrawerToggle
 import com.example.koltinflowex.presentation.common.hideKeyBoard
+import com.example.koltinflowex.presentation.common.requestDexterPermissions
 import com.example.koltinflowex.presentation.common.showToast
 import com.example.koltinflowex.presentation.views.fragment.demo.PlayerFragmentAdapter
 import com.example.koltinflowex.presentation.views.fragment.movielist.MoviesViewModel
@@ -187,6 +188,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), View.OnClickListener {
                 return@setOnEditorActionListener false
             }
         }
+
+
+        this.requestDexterPermissions(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
+        ) { permissionResult ->
+            // Handle the permission results here
+            if (permissionResult) {
+                // All permissions are granted
+                Toast.makeText(this, "All permissions granted", Toast.LENGTH_SHORT).show()
+            } else {
+                // Some permissions are not granted
+                Toast.makeText(this, "Not all permissions are granted", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
     }
 
     override fun onCreateView() {
@@ -258,10 +276,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), View.OnClickListener {
         })
         binding.searchEditText.startAnimation(animation)
     }
+
     companion object {
         private const val ID_HOME = 1
         private const val ID_MESSAGE = 2
         private const val ID_NOTIFICATION = 3
         private const val ID_ACCOUNT = 4
     }
+
 }

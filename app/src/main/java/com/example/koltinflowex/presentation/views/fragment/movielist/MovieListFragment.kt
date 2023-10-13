@@ -3,9 +3,8 @@ package com.example.koltinflowex.presentation.views.fragment.movielist
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.koltinflowex.R
 import com.example.koltinflowex.common.network.api.POSTER_BASE_URL
@@ -31,9 +30,6 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>(),
     override fun onCreateView(view: View, saveInstanceState: Bundle?) {
         setAdapter()
         setRecyclerViewLoadMore()
-    }
-
-    override fun initViews() {
         reloadPage()
     }
 
@@ -52,6 +48,10 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>(),
             },
             onError = ::onError
         )
+    }
+
+    override fun initViews() {
+
     }
 
     override fun getLayoutResource(): Int {
@@ -96,8 +96,9 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>(),
             }
 
         }
-        mainbinding.rvComments.itemAnimator = MyRecyclerViewAnimator()
-
+        val itemAnimator: SimpleItemAnimator =
+            mainbinding.rvComments.itemAnimator as SimpleItemAnimator
+        itemAnimator.supportsChangeAnimations = false
         mainbinding.rvComments.layoutManager =
             GridLayoutManager(parentActivity?.applicationContext, 3)
         mainbinding.rvComments.adapter = movieListAdapter
@@ -106,7 +107,7 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>(),
 
     private fun reloadPage() {
         recyclerViewLoadMoreListener.resetState()
-        page=1
+        page = 1
         moviesViewModel.getPopularMovies(1)
     }
 
@@ -116,14 +117,8 @@ class MovieListFragment : BaseFragment<MovieListFragmentBinding>(),
 
     override fun onNetworkChanged(status: Boolean?) {
         super.onNetworkChanged(status)
-        if (status==true){
+        if (status == true) {
             moviesViewModel.getPopularMovies(page)
-        }
-    }
-    class MyRecyclerViewAnimator : DefaultItemAnimator() {
-        override fun animateAdd(holder: RecyclerView.ViewHolder): Boolean {
-            dispatchAddFinished(holder) // this is what bypasses the animation
-            return true
         }
     }
 }

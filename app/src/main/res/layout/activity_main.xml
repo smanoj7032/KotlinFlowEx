@@ -350,7 +350,6 @@
                 android:id="@+id/bnv_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/yellow_gradient"
                 android:layout_gravity="bottom"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:mbn_backgroundBottomColor="@color/Yellow"
